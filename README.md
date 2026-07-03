@@ -293,6 +293,58 @@ Database Storage
 
 ---
 
+
+src/
+│
+├── app/
+│   ├── (auth)/
+│   ├── (dashboard)/
+│   │   ├── admin/
+│   │   ├── dean/
+│   │   ├── teacher/
+│   │   ├── student/
+│   │   └── parent/
+│   ├── api/
+│   └── layout.tsx
+│
+├── components/
+│   ├── ui/
+│   ├── forms/
+│   ├── tables/
+│   ├── charts/
+│   ├── dashboard/
+│   ├── common/
+│   └── layout/
+│
+├── features/
+│   ├── auth/
+│   ├── students/
+│   ├── teachers/
+│   ├── classes/
+│   ├── attendance/
+│   ├── grades/
+│   ├── transcripts/
+│   ├── analytics/
+│   ├── notifications/
+│   └── settings/
+│
+├── lib/
+│   ├── axios.ts
+│   ├── query-client.ts
+│   ├── auth.ts
+│   ├── socket.ts
+│   └── utils.ts
+│
+├── hooks/
+├── store/
+├── providers/
+├── types/
+├── constants/
+├── styles/
+└── middleware.ts
+
+
+
 # 📦 Background Jobs
 
 Handled with **BullMQ**
