@@ -1,5 +1,5 @@
 import "./globals.css";
-import { ThemeProvider } from "@/components/ui/theme-provider";
+import Providers from "./providers";
 
 export default function RootLayout({
   children,
@@ -8,9 +8,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body>
-        <ThemeProvider>{children}</ThemeProvider>
+      <body className="min-h-screen bg-background text-foreground antialiased">
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
-}
+} 

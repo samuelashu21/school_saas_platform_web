@@ -1,13 +1,31 @@
-export type TeacherStatus = "ACTIVE" | "ON_LEAVE" | "RETIRED";
+import { User } from "./user";
 
 export interface Teacher {
   id: string;
-  teacherId: string; // Institutional ID (e.g., TCH-2026-042)
+
+  userId: string;
+
+  schoolId: string;
+
   firstName: string;
+
+  lastName: string; 
+
+  user?: User;
+}
+
+export interface CreateTeacherDto {
+  userId: string;
+
+  schoolId: string;
+
+  firstName: string;
+
   lastName: string;
-  email: string;
-  department: string; // e.g., "Mathematics", "Sciences", "Humanities"
-  status: TeacherStatus;
-  joiningDate: string;
-  activeSectionsCount: number; // Number of classes currently assigned
+}
+
+export interface UpdateTeacherDto {
+  firstName?: string;
+
+  lastName?: string;
 }

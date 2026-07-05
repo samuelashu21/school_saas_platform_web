@@ -1,18 +1,37 @@
-export type AttendanceStatus = "PRESENT" | "ABSENT" | "TARDY" | "EXCUSED";
-
-export interface DailyAttendanceRecord {
+export interface Attendance {
   id: string;
+
   studentId: string;
-  studentName: string;
+
+  schoolId: string;
+
+  classId: string;
+
   date: string;
-  status: AttendanceStatus;
-  notes?: string;
+
+  status: string;
+
+  student?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+  };
 }
 
-export interface AttendanceAnalyticsSummary {
-  presentCount: number;
-  absentCount: number;
-  tardyCount: number;
-  excusedCount: number;
-  totalPercentage: number;
+export interface CreateAttendanceDto {
+  studentId: string;
+
+  schoolId: string;
+
+  classId: string;
+
+  date: string;
+
+  status: string;
+}
+
+export interface UpdateAttendanceDto {
+  status?: string;
+
+  date?: string;
 }

@@ -1,42 +1,29 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.school-management.local/v1";
+import axios from "axios";
+import { useAuthStore } from "@/store/useAuthStore";
 
-interface RequestOptions extends RequestInit {
-  params?: Record<string, string>;
-}
-
-export async function apiClient<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
-  const { params, headers, ...restOptions } = options;
+export const api = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1",
+  withCredentials: true,
+});
   
-  // Construct dynamic URL arguments safely
-  let url = `${BASE_URL}${endpoint}`;
-  if (params && Object.keys(params).length > 0) {
-    const searchParams = new URLSearchParams(params);
-    url += `?${searchParams.toString()}`;
+// Attach JWT automatically
+api.interceptors.request.use((config) => {
+  const token = useAuthStore.getState().token;
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
 
-  const defaultHeaders = {
-    "Content-Type": "application/json",
-    // Expand to handle Authorization Bearer injections when wired to NextAuth
-    ...headers,
-  };
+  return config;
+});
 
-  try {
-    const response = await fetch(url, {
-      ...restOptions,
-      headers: defaultHeaders,
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `API Error: ${response.status} ${response.statusText}`);
+// Global error handling
+api.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    if (err.response?.status === 401) {
+      useAuthStore.getState().logout();
     }
-
-    // Handle empty payloads gracefully
-    if (response.status === 204) return {} as T;
-
-    return await response.json();
-  } catch (error) {
-    console.error(`[API Client Failure] Route: ${endpoint}`, error);
-    throw error;
+    return Promise.reject(err);
   }
-}
+);

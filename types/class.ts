@@ -1,12 +1,33 @@
-export interface ClassSection {
+export interface SchoolClass {
   id: string;
-  classCode: string; // e.g., "BIO-101-A"
-  className: string; // e.g., "Introductory Biology"
-  teacherName: string;
-  roomNumber: string;
-  scheduleDays: ("MON" | "TUE" | "WED" | "THU" | "FRI")[];
-  timeSlot: string; // e.g., "09:00 AM - 10:30 AM"
-  enrolledCount: number;
-  maxCapacity: number;
-  status: "OPEN" | "FULL" | "ARCHIVED";
+
+  name: string;
+
+  grade: number;
+
+  schoolId: string;
+}
+ 
+export interface Enrollment {
+  id: string;
+
+  studentId: string;
+
+  classId: string;
+
+  createdAt: string;
+}
+
+export interface CreateClassDto {
+  name: string;
+
+  grade: number;
+
+  schoolId: string;
+}
+
+export interface UpdateClassDto {
+  name?: string;
+
+  grade?: number;
 }
