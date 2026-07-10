@@ -7,14 +7,14 @@ import { PlusCircleIcon, SearchIcon, GraduationCap } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import Header from "@/app/(components)/Header";
-import CreateCourseModal from "./CreateCourseModal";
+import CreateCourseModal from "./CreateSubjectModal";
 
 import { useAppDispatch, useAppSelector } from "@/app/redux";
 
 import { setGlobalSearchTerm } from "@/app/state";
 
-type Course = {
-  courseId: string;
+type Subject = {
+  subjectId: string;
 
   name: string;
 

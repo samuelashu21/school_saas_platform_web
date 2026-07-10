@@ -4,15 +4,15 @@ import type { RootState } from "@/app/redux";
 // =============================
 // COURSE TYPES
 // =============================
-
-export interface Course {
-  courseId: string;
+ 
+export interface Subject {
+  subjectId: string;
   name: string;
   code: string;
   credits: number;
 }
 
-export interface NewCourse {
+export interface NewSubject {
   name: string;
   code: string;
   credits: number;
@@ -37,7 +37,7 @@ export interface AttendanceSummary {
 }
 
 export interface AcademicMetrics {
-  popularCourses: Course[];
+  popularSubjects: Subject[];
   enrollmentSummary: EnrollmentSummary[];
   attendanceSummary: AttendanceSummary[];
 }
@@ -121,7 +121,7 @@ export const api = createApi({
     },
   }),
 
-  tagTypes: ["DashboardMetrics", "Courses", "Users", "Students"],
+  tagTypes: ["DashboardMetrics", "Subjects", "Users", "Students","Schools","StudentRegistration"],
 
   endpoints: (build) => ({
     // =====================
@@ -175,9 +175,9 @@ export const api = createApi({
     // COURSES
     // =====================
 
-    getCourses: build.query<Course[], string | void>({
+    getSubjects: build.query<Subject[], string | void>({
       query: (search) => ({
-        url: "/courses",
+        url: "/subjects",
 
         params: search
           ? {
@@ -186,19 +186,19 @@ export const api = createApi({
           : {},
       }),
 
-      providesTags: ["Courses"],
+      providesTags: ["Subjects"],
     }),
 
-    createCourse: build.mutation<Course, NewCourse>({
+    createSubject: build.mutation<Subject, NewSubject>({
       query: (body) => ({
-        url: "/courses",
+        url: "/subjects",
 
         method: "POST",
 
         body,
       }),
 
-      invalidatesTags: ["Courses"],
+      invalidatesTags: ["Subjects"],
     }),
 
     // =====================
@@ -282,9 +282,9 @@ export const {
   // dashboard
   useGetDashboardMetricsQuery,
 
-  // courses
-  useGetCoursesQuery,
-  useCreateCourseMutation,
+  // subjects
+  useGetSubjectsQuery,
+  useCreateSubjectMutation,
 
   // users
   useGetUsersQuery,

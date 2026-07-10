@@ -1,16 +1,21 @@
-'use client';
-import { useAppDispatch, useAppSelector } from '@/app/redux';
-import { setIsSidebarCollapsed } from '@/app/state';
-import { usePathname } from 'next/navigation';
+"use client";
+
+import { useAppDispatch, useAppSelector } from "@/app/redux";
+import { setIsSidebarCollapsed } from "@/app/state";
+import { usePathname } from "next/navigation";
+
 import {
   Layout,
   LucideIcon,
   Menu,
   GraduationCap,
+  Building2,
   Users,
   SlidersHorizontal,
-} from 'lucide-react';
-import Link from 'next/link';
+  ClipboardList,
+} from "lucide-react";
+
+import Link from "next/link";
 
 interface SidebarLinkProps {
   href: string;
@@ -28,22 +33,39 @@ const SidebarLink = ({
   testId,
 }: SidebarLinkProps) => {
   const pathname = usePathname();
-  const isActive = pathname === href || (pathname === '/' && href === '/dashboard');
-  
+
+  const isActive =
+    pathname === href || (pathname === "/" && href === "/dashboard");
+
   return (
     <Link href={href} data-testid={testId}>
       <div
-        className={`cursor-pointer flex items-center ${
-          isCollapsed ? 'justify-center py-4' : 'justify-start px-8 py-4'
-        } hover:text-blue-500 hover:bg-blue-100 gap-3 transition-colors ${
-          isActive ? 'bg-blue-100 text-blue-700' : ''
-        }`}
+        className={`
+          cursor-pointer
+          flex
+          items-center
+          ${isCollapsed ? "justify-center py-4" : "justify-start px-8 py-4"}
+          hover:text-blue-500
+          hover:bg-blue-100
+          gap-3
+          transition-colors
+          ${isActive ? "bg-blue-100 text-blue-700" : ""}
+        `}
       >
-        <Icon className={`w-6 h-6 ${isActive ? 'text-blue-700' : '!text-gray-700'}`} />
+        <Icon
+          className={`
+            w-6
+            h-6
+            ${isActive ? "text-blue-700" : "!text-gray-700"}
+          `}
+        />
+
         <span
-          className={`${
-            isCollapsed ? 'hidden' : 'block'
-          } font-medium ${isActive ? 'text-blue-700' : 'text-gray-700'}`}
+          className={`
+            ${isCollapsed ? "hidden" : "block"}
+            font-medium
+            ${isActive ? "text-blue-700" : "text-gray-700"}
+          `}
         >
           {label}
         </span>
@@ -54,33 +76,92 @@ const SidebarLink = ({
 
 const Sidebar = () => {
   const dispatch = useAppDispatch();
-  const isSidebarCollapsed = useAppSelector((state) => state.global.isSidebarCollapsed);
+
+  const isSidebarCollapsed = useAppSelector(
+    (state) => state.global.isSidebarCollapsed,
+  );
 
   const toggleSidebar = () => {
     dispatch(setIsSidebarCollapsed(!isSidebarCollapsed));
   };
 
-  const sidebarClassNames = `fixed flex flex-col ${
-    isSidebarCollapsed ? 'w-0 md:w-16' : 'w-72 md:w-64'
-  } bg-white transition-all duration-300 overflow-hidden h-full shadow-md z-40`;
+  const sidebarClassNames = `
+
+    fixed
+
+    flex
+
+    flex-col
+
+    ${isSidebarCollapsed ? "w-0 md:w-16" : "w-72 md:w-64"}
+
+    bg-white
+
+    transition-all
+
+    duration-300
+
+    overflow-hidden
+
+    h-full
+
+    shadow-md
+
+    z-40
+
+  `;
 
   return (
     <div className={sidebarClassNames} data-testid="sidebar">
-      {/* TOP LOGO */}
+      {/* LOGO */}
+
       <div
-        className={`flex gap-3 justify-between md:justify-normal items-center pt-8 ${
-          isSidebarCollapsed ? 'px-5' : 'px-8'
-        }`}
+        className={`
+flex
+gap-3
+justify-between
+md:justify-normal
+items-center
+pt-8
+${isSidebarCollapsed ? "px-5" : "px-8"}
+`}
       >
-        <div className="w-8 h-8 rounded-lg bg-blue-600 text-white grid place-items-center text-sm font-bold">
+        <div
+          className="
+w-8
+h-8
+rounded-lg
+bg-blue-600
+text-white
+grid
+place-items-center
+text-sm
+font-bold
+"
+        >
           SM
         </div>
-        <h1 className={`${isSidebarCollapsed ? 'hidden' : 'block'} font-extrabold text-2xl text-gray-800`}>
+
+        <h1
+          className={`
+${isSidebarCollapsed ? "hidden" : "block"}
+font-extrabold
+text-2xl
+text-gray-800
+`}
+        >
           SIMS EDU
         </h1>
 
         <button
-          className="md:hidden px-3 py-3 bg-gray-100 rounded-full hover:bg-blue-100"
+          className="
+md:hidden
+px-3
+py-3
+bg-gray-100
+rounded-full
+hover:bg-blue-100
+"
           onClick={toggleSidebar}
         >
           <Menu className="w-4 h-4" />
@@ -88,6 +169,7 @@ const Sidebar = () => {
       </div>
 
       {/* LINKS */}
+
       <div className="flex-grow mt-8">
         <SidebarLink
           href="/dashboard"
@@ -96,6 +178,23 @@ const Sidebar = () => {
           isCollapsed={isSidebarCollapsed}
           testId="nav-dashboard"
         />
+
+        <SidebarLink
+          href="/schools"
+          icon={Building2}
+          label="Schools"
+          isCollapsed={isSidebarCollapsed}
+          testId="nav-schools"
+        />
+
+        <SidebarLink
+          href="/student-registration"
+          icon={ClipboardList}
+          label="Student Registration"
+          isCollapsed={isSidebarCollapsed}
+          testId="nav-student-registration"
+        />
+
         <SidebarLink
           href="/courses"
           icon={GraduationCap}
@@ -103,6 +202,7 @@ const Sidebar = () => {
           isCollapsed={isSidebarCollapsed}
           testId="nav-courses"
         />
+
         <SidebarLink
           href="/students"
           icon={Users}
@@ -110,6 +210,7 @@ const Sidebar = () => {
           isCollapsed={isSidebarCollapsed}
           testId="nav-students"
         />
+
         <SidebarLink
           href="/settings"
           icon={SlidersHorizontal}
@@ -120,8 +221,22 @@ const Sidebar = () => {
       </div>
 
       {/* FOOTER */}
-      <div className={`${isSidebarCollapsed ? 'hidden' : 'block'} mb-10`}>
-        <p className="text-center text-xs text-gray-500">&copy; 2026 SIMS Management</p>
+
+      <div
+        className={`
+${isSidebarCollapsed ? "hidden" : "block"}
+mb-10
+`}
+      >
+        <p
+          className="
+text-center
+text-xs
+text-gray-500
+"
+        >
+          © 2026 SIMS Management
+        </p> 
       </div>
     </div>
   );
