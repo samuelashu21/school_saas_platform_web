@@ -11,7 +11,7 @@ export interface Course {
   code: string;
   credits: number;
 }
- 
+
 export interface NewCourse {
   name: string;
   code: string;
@@ -43,20 +43,31 @@ export interface AcademicMetrics {
 }
 
 // =============================
-// USER / RBAC TYPES
+// AUTH / USER TYPES
 // =============================
 
-export interface UserRole {
-  role: {
-    name: string;
-  };
+export interface AuthUser {
+  id: string;
+  name: string;
+  email: string;
+  roles: string[];
+  createdAt?: string;
 }
+
+export interface AuthResponse {
+  token: string;
+  user: AuthUser;
+}
+
+// =============================
+// USERS / RBAC TYPES
+// =============================
 
 export interface User {
   id: string;
   name: string;
   email: string;
-  roles: UserRole[];
+  roles: string[];
   createdAt?: string;
 }
 
@@ -83,22 +94,6 @@ export interface Student {
 }
 
 // =============================
-// AUTH TYPES
-// =============================
-
-export interface AuthUser {
-  id: string;
-  name: string;
-  email: string;
-  roles: string[];
-}
-
-export interface AuthResponse {
-  token: string;
-  user: AuthUser;
-}
-
-// =============================
 // API CONFIG
 // =============================
 
@@ -112,7 +107,7 @@ const apiBaseUrl =
 export const api = createApi({
   reducerPath: "api",
 
-  baseQuery: fetchBaseQuery({ 
+  baseQuery: fetchBaseQuery({
     baseUrl: apiBaseUrl,
 
     prepareHeaders: (headers, { getState }) => {
@@ -142,9 +137,7 @@ export const api = createApi({
     >({
       query: (body) => ({
         url: "/auth/login",
-
         method: "POST",
-
         body,
       }),
     }),
@@ -159,11 +152,13 @@ export const api = createApi({
     >({
       query: (body) => ({
         url: "/auth/register",
-
         method: "POST",
-
         body,
       }),
+    }),
+
+    getCurrentUser: build.query<AuthUser, void>({
+      query: () => "/auth/me",
     }),
 
     // =====================
@@ -228,7 +223,12 @@ export const api = createApi({
       invalidatesTags: ["Users"],
     }),
 
-    assignRole: build.mutation<any, AssignRoleRequest>({
+    assignRole: build.mutation<
+      {
+        message: string;
+      },
+      AssignRoleRequest
+    >({
       query: ({ id, role }) => ({
         url: `/users/${id}/role`,
 
@@ -269,10 +269,15 @@ export const api = createApi({
   }),
 });
 
+// =============================
+// HOOK EXPORTS
+// =============================
+
 export const {
   // auth
   useLoginMutation,
   useRegisterMutation,
+  useGetCurrentUserQuery,
 
   // dashboard
   useGetDashboardMetricsQuery,
