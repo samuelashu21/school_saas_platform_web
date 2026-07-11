@@ -186,6 +186,16 @@ const Sidebar = () => {
           testId="nav-classes"
         />
 
+        {/* Grade MANAGEMENT */}
+
+        <SidebarLink
+          href="/grades"
+          icon={ClipboardList}
+          label="Grades"
+          isCollapsed={isSidebarCollapsed}
+          testId="nav-grades"
+        />
+
         <SidebarLink
           href="/student-registration"
           icon={ClipboardList}
