@@ -121,7 +121,7 @@ export const api = createApi({
     },
   }),
 
-  tagTypes: ["DashboardMetrics", "Subjects", "Users", "Students","Schools","StudentRegistration","StudentEnrollment","Classes","Grades"],
+  tagTypes: ["DashboardMetrics", "Subjects", "Users", "Students","Schools","StudentRegistration","StudentEnrollment","Classes","Grades","Teachers"],
 
   endpoints: (build) => ({
     // =====================

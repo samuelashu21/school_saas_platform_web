@@ -14,6 +14,7 @@ import {
   SlidersHorizontal,
   ClipboardList,
   School,
+  UsersRound,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -42,31 +43,31 @@ const SidebarLink = ({
     <Link href={href} data-testid={testId}>
       <div
         className={`
-          cursor-pointer
-          flex
-          items-center
-          ${isCollapsed ? "justify-center py-4" : "justify-start px-8 py-4"}
-          hover:text-blue-500
-          hover:bg-blue-100
-          gap-3
-          transition-colors
-          ${isActive ? "bg-blue-100 text-blue-700" : ""}
-        `}
+cursor-pointer
+flex
+items-center
+${isCollapsed ? "justify-center py-4" : "justify-start px-8 py-4"}
+hover:text-blue-500
+hover:bg-blue-100
+gap-3
+transition-colors
+${isActive ? "bg-blue-100 text-blue-700" : ""}
+`}
       >
         <Icon
           className={`
-            w-6
-            h-6
-            ${isActive ? "text-blue-700" : "!text-gray-700"}
-          `}
+w-6
+h-6
+${isActive ? "text-blue-700" : "!text-gray-700"}
+`}
         />
 
         <span
           className={`
-            ${isCollapsed ? "hidden" : "block"}
-            font-medium
-            ${isActive ? "text-blue-700" : "text-gray-700"}
-          `}
+${isCollapsed ? "hidden" : "block"}
+font-medium
+${isActive ? "text-blue-700" : "text-gray-700"}
+`}
         >
           {label}
         </span>
@@ -87,18 +88,30 @@ const Sidebar = () => {
   };
 
   const sidebarClassNames = `
-    fixed
-    flex
-    flex-col
-    ${isSidebarCollapsed ? "w-0 md:w-16" : "w-72 md:w-64"}
-    bg-white
-    transition-all
-    duration-300
-    overflow-hidden
-    h-full
-    shadow-md
-    z-40
-  `;
+
+fixed
+
+flex
+
+flex-col
+
+${isSidebarCollapsed ? "w-0 md:w-16" : "w-72 md:w-64"}
+
+bg-white
+
+transition-all
+
+duration-300
+
+overflow-hidden
+
+h-full
+
+shadow-md
+
+z-40
+
+`;
 
   return (
     <div className={sidebarClassNames} data-testid="sidebar">
@@ -106,51 +119,51 @@ const Sidebar = () => {
 
       <div
         className={`
-          flex
-          gap-3
-          justify-between
-          md:justify-normal
-          items-center
-          pt-8
-          ${isSidebarCollapsed ? "px-5" : "px-8"}
-        `}
+flex
+gap-3
+justify-between
+md:justify-normal
+items-center
+pt-8
+${isSidebarCollapsed ? "px-5" : "px-8"}
+`}
       >
         <div
           className="
-            w-8
-            h-8
-            rounded-lg
-            bg-blue-600
-            text-white
-            grid
-            place-items-center
-            text-sm
-            font-bold
-          "
+w-8
+h-8
+rounded-lg
+bg-blue-600
+text-white
+grid
+place-items-center
+text-sm
+font-bold
+"
         >
           SM
         </div>
 
         <h1
           className={`
-            ${isSidebarCollapsed ? "hidden" : "block"}
-            font-extrabold
-            text-2xl
-            text-gray-800
-          `}
+${isSidebarCollapsed ? "hidden" : "block"}
+font-extrabold
+text-2xl
+text-gray-800
+`}
         >
           SIMS EDU
         </h1>
 
         <button
           className="
-            md:hidden
-            px-3
-            py-3
-            bg-gray-100
-            rounded-full
-            hover:bg-blue-100
-          "
+md:hidden
+px-3
+py-3
+bg-gray-100
+rounded-full
+hover:bg-blue-100
+"
           onClick={toggleSidebar}
         >
           <Menu className="w-4 h-4" />
@@ -176,7 +189,13 @@ const Sidebar = () => {
           testId="nav-schools"
         />
 
-        {/* CLASS MANAGEMENT */}
+        <SidebarLink
+          href="/grades"
+          icon={ClipboardList}
+          label="Grades"
+          isCollapsed={isSidebarCollapsed}
+          testId="nav-grades"
+        />
 
         <SidebarLink
           href="/classes"
@@ -186,14 +205,12 @@ const Sidebar = () => {
           testId="nav-classes"
         />
 
-        {/* Grade MANAGEMENT */}
-
         <SidebarLink
-          href="/grades"
-          icon={ClipboardList}
-          label="Grades"
+          href="/teachers"
+          icon={UsersRound}
+          label="Teachers"
           isCollapsed={isSidebarCollapsed}
-          testId="nav-grades"
+          testId="nav-teachers"
         />
 
         <SidebarLink
@@ -212,13 +229,6 @@ const Sidebar = () => {
           testId="nav-student-enrollment"
         />
 
-        <SidebarLink
-          href="/courses"
-          icon={GraduationCap}
-          label="Courses"
-          isCollapsed={isSidebarCollapsed}
-          testId="nav-courses"
-        />
 
         <SidebarLink
           href="/settings"
@@ -233,16 +243,16 @@ const Sidebar = () => {
 
       <div
         className={`
-          ${isSidebarCollapsed ? "hidden" : "block"}
-          mb-10
-        `}
+${isSidebarCollapsed ? "hidden" : "block"}
+mb-10
+`}
       >
         <p
           className="
-            text-center
-            text-xs
-            text-gray-500
-          "
+text-center
+text-xs
+text-gray-500
+"
         >
           © 2026 SIMS Management
         </p>

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import DashboardWrapper from './dashboardWrapper';
+import { Toaster } from 'sonner'; // 👈 1. Import Toaster
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -19,6 +20,9 @@ export default function RootLayout({
     <html lang="en" className="h-full">
       <body className={`${inter.className} h-full antialiased`}>
         <DashboardWrapper>{children}</DashboardWrapper>
+        
+        {/* 👈 2. Add Toaster here so it's accessible across all views */}
+        <Toaster position="top-right" richColors closeButton />
       </body>
     </html>
   );
