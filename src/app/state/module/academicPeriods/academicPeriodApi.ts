@@ -17,6 +17,8 @@ export interface AcademicPeriod {
 
   createdAt:string;
 
+  updatedAt:string;
+
 }
 
 
@@ -43,8 +45,11 @@ api.injectEndpoints({
  endpoints:(builder)=>({
 
 
- getAcademicPeriods:
+ // =========================================
+ // GET ALL
+ // =========================================
 
+ getAcademicPeriods:
  builder.query<AcademicPeriod[],void>({
 
   query:()=>"/academic-periods",
@@ -55,8 +60,11 @@ api.injectEndpoints({
 
 
 
- getCurrentAcademicPeriod:
+ // =========================================
+ // CURRENT ACTIVE PERIOD
+ // =========================================
 
+ getCurrentAcademicPeriod:
  builder.query<AcademicPeriod,void>({
 
   query:()=>"/academic-periods/current",
@@ -67,12 +75,16 @@ api.injectEndpoints({
 
 
 
+ // =========================================
+ // CREATE GLOBAL PERIOD
+ // =========================================
+
  createAcademicPeriod:
 
  builder.mutation<
  {
   message:string;
-  period:AcademicPeriod
+  period:AcademicPeriod;
  },
  CreateAcademicPeriodRequest
  >({
@@ -92,6 +104,10 @@ api.injectEndpoints({
  }),
 
 
+
+ // =========================================
+ // SET ACTIVE
+ // =========================================
 
  setCurrentAcademicPeriod:
 
@@ -114,12 +130,42 @@ api.injectEndpoints({
 
 
 
+
+ // =========================================
+ // UPDATE
+ // =========================================
+
+ updateAcademicPeriod:
+
+ builder.mutation({
+
+ query:({
+  id,
+  ...body
+ })=>({
+
+  url:`/academic-periods/${id}`,
+
+  method:"PUT",
+
+  body
+
+ }),
+
+ invalidatesTags:["AcademicPeriods"]
+
+ }),
+
+
+
+
+ // =========================================
+ // DELETE
+ // =========================================
+
  deleteAcademicPeriod:
 
- builder.mutation<
- void,
- string
- >({
+ builder.mutation<void,string>({
 
  query:(id)=>({
 
@@ -134,22 +180,26 @@ api.injectEndpoints({
  })
 
 
-
  })
 
 });
 
 
+
+
 export const {
 
-useGetAcademicPeriodsQuery,
+ useGetAcademicPeriodsQuery,
 
-useGetCurrentAcademicPeriodQuery,
+ useGetCurrentAcademicPeriodQuery,
 
-useCreateAcademicPeriodMutation,
+ useCreateAcademicPeriodMutation,
 
-useSetCurrentAcademicPeriodMutation,
+ useSetCurrentAcademicPeriodMutation,
 
-useDeleteAcademicPeriodMutation,
+ useUpdateAcademicPeriodMutation,
+
+ useDeleteAcademicPeriodMutation,
+
 
 }=academicPeriodApi;

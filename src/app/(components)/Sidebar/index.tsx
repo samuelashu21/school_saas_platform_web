@@ -16,6 +16,7 @@ import {
   School,
   UsersRound,
   BookOpen,
+  CalendarDays,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -223,8 +224,16 @@ hover:bg-blue-100
         />
 
         <SidebarLink
+          href="/academic-periods"
+          icon={CalendarDays}
+          label="Academic Year / Semester"
+          isCollapsed={isSidebarCollapsed}
+          testId="nav-academic-periods"
+        />
+
+        <SidebarLink
           href="/teacher-subjects"
-          icon={GraduationCap} 
+          icon={GraduationCap}
           label="Teacher Subject Assignment"
           isCollapsed={isSidebarCollapsed}
           testId="nav-teacher-subjects"

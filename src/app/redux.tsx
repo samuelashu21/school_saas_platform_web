@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 
 import {
@@ -27,7 +28,12 @@ import createWebStorage from "redux-persist/lib/storage/createWebStorage";
 
 import { setupListeners } from "@reduxjs/toolkit/query";
 
+// reducers
+
 import globalReducer from "@/app/state";
+
+import authReducer from "@/app/state/module/auth";
+
 import { api } from "@/app/state/api";
 
 /* =====================================
@@ -60,15 +66,28 @@ const storage =
 const rootReducer = combineReducers({
   global: globalReducer,
 
+  // Authentication state
+
+  auth: authReducer,
+
+  // RTK Query
+
   [api.reducerPath]: api.reducer,
 });
+
+/* =====================================
+   PERSIST CONFIG
+===================================== */
 
 const persistedReducer = persistReducer(
   {
     key: "root",
+
     storage,
-    whitelist: ["global"],
+
+    whitelist: ["global", "auth"],
   },
+
   rootReducer,
 );
 
