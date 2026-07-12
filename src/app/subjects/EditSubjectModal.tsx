@@ -1,19 +1,22 @@
 "use client";
 
-import { useState } from "react";
-import {
-  useCreateSubjectMutation,
-} from "@/app/state/module/subjects/subjectApi";
+import { useEffect, useState } from "react";
+
+import { useUpdateSubjectMutation } from "@/app/state/module/subjects/subjectApi";
+
+interface Subject {
+  id: string;
+  name: string;
+  code: string;
+}  
 
 interface Props {
+  subject: Subject;
   onClose: () => void;
 }
 
-export default function CreateSubjectModal({
-  onClose,
-}: Props) {
-  const [createSubject, { isLoading }] =
-    useCreateSubjectMutation();
+export default function EditSubjectModal({ subject, onClose }: Props) {
+  const [updateSubject, { isLoading }] = useUpdateSubjectMutation();
 
   const [form, setForm] = useState({
     name: "",
@@ -22,17 +25,21 @@ export default function CreateSubjectModal({
 
   const [error, setError] = useState("");
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  useEffect(() => {
+    if (subject) {
+      setForm({
+        name: subject.name,
+        code: subject.code,
+      });
+    }
+  }, [subject]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
     setForm((prev) => ({
       ...prev,
-      [name]:
-        name === "code"
-          ? value.toUpperCase()
-          : value,
+      [name]: name === "code" ? value.toUpperCase() : value,
     }));
   };
 
@@ -40,27 +47,24 @@ export default function CreateSubjectModal({
     setError("");
 
     if (!form.name.trim()) {
-      setError("Subject name is required.");
+      setError("Subject name is required");
       return;
     }
 
     if (!form.code.trim()) {
-      setError("Subject code is required.");
+      setError("Subject code is required");
       return;
     }
 
     try {
-      await createSubject({
-        name: form.name.trim(),
-        code: form.code.trim().toUpperCase(),
+      await updateSubject({
+        id: subject.id,
+        ...form,
       }).unwrap();
 
       onClose();
     } catch (err: any) {
-      setError(
-        err?.data?.message ??
-          "Failed to create subject.",
-      );
+      setError(err?.data?.message ?? "Failed updating subject");
     }
   };
 
@@ -69,7 +73,7 @@ export default function CreateSubjectModal({
       className="
         fixed
         inset-0
-        bg-black/50
+        bg-black/40
         flex
         items-center
         justify-center
@@ -80,7 +84,6 @@ export default function CreateSubjectModal({
         className="
           bg-white
           rounded-xl
-          shadow-xl
           w-full
           max-w-md
           p-6
@@ -88,12 +91,12 @@ export default function CreateSubjectModal({
       >
         <h2
           className="
-            text-2xl
+            text-xl
             font-bold
-            mb-6
+            mb-5
           "
         >
-          Create Subject
+          Edit Subject
         </h2>
 
         {/* Subject Name */}
@@ -112,18 +115,14 @@ export default function CreateSubjectModal({
 
           <input
             name="name"
-            type="text"
-            placeholder="e.g. Mathematics"
             value={form.name}
             onChange={handleChange}
+            placeholder="Mathematics"
             className="
-              w-full
               border
               rounded-lg
+              w-full
               p-3
-              focus:ring-2
-              focus:ring-blue-500
-              outline-none
             "
           />
         </div>
@@ -144,19 +143,15 @@ export default function CreateSubjectModal({
 
           <input
             name="code"
-            type="text"
-            placeholder="e.g. MATH101"
             value={form.code}
             onChange={handleChange}
+            placeholder="MATH101"
             className="
-              w-full
               border
               rounded-lg
+              w-full
               p-3
               uppercase
-              focus:ring-2
-              focus:ring-blue-500
-              outline-none
             "
           />
         </div>
@@ -166,9 +161,9 @@ export default function CreateSubjectModal({
             className="
               mb-4
               rounded-lg
+              bg-red-50
               border
               border-red-200
-              bg-red-50
               p-3
               text-sm
               text-red-600
@@ -188,14 +183,12 @@ export default function CreateSubjectModal({
         >
           <button
             onClick={onClose}
-            disabled={isLoading}
             className="
               px-4
               py-2
               rounded-lg
               bg-gray-200
               hover:bg-gray-300
-              disabled:opacity-50
             "
           >
             Cancel
@@ -214,12 +207,10 @@ export default function CreateSubjectModal({
               disabled:opacity-50
             "
           >
-            {isLoading
-              ? "Creating..."
-              : "Create Subject"}
+            {isLoading ? "Updating..." : "Update Subject"}
           </button>
         </div>
       </div>
     </div>
   );
-} 
+}

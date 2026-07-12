@@ -15,6 +15,7 @@ import {
   ClipboardList,
   School,
   UsersRound,
+  BookOpen,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -206,11 +207,27 @@ hover:bg-blue-100
         />
 
         <SidebarLink
+          href="/subjects"
+          icon={BookOpen}
+          label="Subjects"
+          isCollapsed={isSidebarCollapsed}
+          testId="nav-subjects"
+        />
+
+        <SidebarLink
           href="/teachers"
           icon={UsersRound}
           label="Teachers"
           isCollapsed={isSidebarCollapsed}
           testId="nav-teachers"
+        />
+
+        <SidebarLink
+          href="/teacher-subjects"
+          icon={GraduationCap} 
+          label="Teacher Subject Assignment"
+          isCollapsed={isSidebarCollapsed}
+          testId="nav-teacher-subjects"
         />
 
         <SidebarLink
@@ -228,7 +245,6 @@ hover:bg-blue-100
           isCollapsed={isSidebarCollapsed}
           testId="nav-student-enrollment"
         />
-
 
         <SidebarLink
           href="/settings"
