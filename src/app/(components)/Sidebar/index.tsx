@@ -17,6 +17,8 @@ import {
   UsersRound,
   BookOpen,
   CalendarDays,
+  UserPlus,
+  CheckCircle,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -84,6 +86,16 @@ const Sidebar = () => {
   const isSidebarCollapsed = useAppSelector(
     (state) => state.global.isSidebarCollapsed,
   );
+
+  const currentUserRoles = useAppSelector(
+    (state) => state.global.currentUser?.roles ?? [],
+  );
+
+  const normalizedRoles = currentUserRoles.map((role) => role.toUpperCase());
+  const isAdmin =
+    normalizedRoles.includes("SCHOOL_ADMIN") ||
+    normalizedRoles.includes("SUPER_ADMIN");
+  const isRegistrar = normalizedRoles.includes("REGISTRAR");
 
   const toggleSidebar = () => {
     dispatch(setIsSidebarCollapsed(!isSidebarCollapsed));
@@ -239,13 +251,25 @@ hover:bg-blue-100
           testId="nav-teacher-subjects"
         />
 
-        <SidebarLink
-          href="/student-registration"
-          icon={ClipboardList}
-          label="Student Registration"
-          isCollapsed={isSidebarCollapsed}
-          testId="nav-student-registration"
-        />
+        {isRegistrar && !isAdmin && (
+          <SidebarLink
+            href="/student-registration/register"
+            icon={UserPlus}
+            label="Register Student"
+            isCollapsed={isSidebarCollapsed}
+            testId="nav-student-registration-register"
+          />
+        )}
+
+        {isAdmin && (
+          <SidebarLink
+            href="/student-registration/approvals"
+            icon={CheckCircle}
+            label="Student Approval"
+            isCollapsed={isSidebarCollapsed}
+            testId="nav-student-registration-approvals"
+          />
+        )}
 
         <SidebarLink
           href="/student-enrollment"
@@ -284,6 +308,6 @@ text-gray-500
       </div>
     </div>
   );
-};
+}; 
 
 export default Sidebar;

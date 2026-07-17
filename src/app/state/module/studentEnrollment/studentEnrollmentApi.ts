@@ -1,155 +1,160 @@
 import { api } from "../../api";
 
+// ===================================
+// TYPES
+// ===================================
+
+export interface Class {
+  id: string;
+
+  name: string;
+}
+
+export interface Student {
+  id: string;
+
+  studentCode: string;
+
+  firstName: string;
+
+  lastName: string;
+}
 
 export interface AcademicPeriod {
+  id: string;
 
-  id:string;
+  academicYear: string;
 
-  academicYear:string;
-
-  semester:string;
-
-  startDate:string;
-
-  endDate:string;
-
-  isActive:boolean;
-
-  createdAt:string;
-
+  semester: string;
 }
 
+export interface Enrollment {
+  id: string;
 
+  studentId: string;
 
-export interface CreateAcademicPeriodRequest {
+  schoolId: string;
 
-  academicYear:string;
+  classId: string;
 
-  semester:string;
+  academicPeriodId: string;
 
-  startDate:string;
+  enrollmentType: string;
 
-  endDate:string;
+  status: string;
 
-  isActive?:boolean;
+  createdAt: string;
 
+  student: Student;
+
+  class: Class;
+
+  academicPeriod: AcademicPeriod;
 }
 
+// ===================================
+// CREATE REQUEST
+// ===================================
 
+export interface CreateEnrollmentRequest {
+  enrollmentType: "NEW" | "NEW_STUDENT" | "TRANSFER";
 
-export const academicPeriodApi =
-api.injectEndpoints({
+  studentId?: string;
 
- endpoints:(builder)=>({
+  firstName?: string;
 
+  lastName?: string;
 
- getAcademicPeriods:
+  gender?: string;
 
- builder.query<AcademicPeriod[],void>({
+  dateOfBirth?: string;
 
-  query:()=>"/academic-periods",
+  parentName?: string;
 
-  providesTags:["AcademicPeriods"]
+  parentPhone?: string;
 
- }),
+  schoolId: string;
 
+  classId: string;
+}
 
+// ===================================
+// API
+// ===================================
 
- getCurrentAcademicPeriod:
+export const studentEnrollmentApi = api.injectEndpoints({
+  endpoints: (builder) => ({
+    // ===================================
+    // GET ALL ENROLLMENTS
+    // ===================================
 
- builder.query<AcademicPeriod,void>({
+    getEnrollments: builder.query<Enrollment[], void>({
+      query: () => "/student-enrollment",
 
-  query:()=>"/academic-periods/current",
+      providesTags: ["StudentEnrollment"],
+    }),
 
-  providesTags:["AcademicPeriods"]
+    // ===================================
+    // GET ONE ENROLLMENT
+    // ===================================
 
- }),
+    getEnrollmentById: builder.query<Enrollment, string>({
+      query: (id) => `/student-enrollment/${id}`,
 
+      providesTags: ["StudentEnrollment"],
+    }),
 
+    // ===================================
+    // CREATE ENROLLMENT
+    // ===================================
 
- createAcademicPeriod:
+    createEnrollment: builder.mutation<
+      {
+        message: string;
 
- builder.mutation<
- {
-  message:string;
-  period:AcademicPeriod
- },
- CreateAcademicPeriodRequest
- >({
+        enrollment: Enrollment;
+      },
+      CreateEnrollmentRequest
+    >({
+      query: (body) => ({
+        url: "/student-enrollment",
 
- query:(body)=>({
+        method: "POST",
 
-  url:"/academic-periods",
+        body,
+      }),
 
-  method:"POST",
+      invalidatesTags: ["StudentEnrollment"],
+    }),
 
-  body
+    // ===================================
+    // DELETE ENROLLMENT
+    // ===================================
 
- }),
+    deleteEnrollment: builder.mutation<
+      {
+        message: string;
+      },
+      string
+    >({
+      query: (id) => ({
+        url: `/student-enrollment/${id}`,
 
- invalidatesTags:["AcademicPeriods"]
+        method: "DELETE",
+      }),
 
- }),
-
-
-
- setCurrentAcademicPeriod:
-
- builder.mutation<
- {message:string},
- string
- >({
-
- query:(id)=>({
-
-  url:`/academic-periods/${id}/current`,
-
-  method:"PUT"
-
- }),
-
- invalidatesTags:["AcademicPeriods"]
-
- }),
-
-
-
- deleteAcademicPeriod:
-
- builder.mutation<
- void,
- string
- >({
-
- query:(id)=>({
-
-  url:`/academic-periods/${id}`,
-
-  method:"DELETE"
-
- }),
-
- invalidatesTags:["AcademicPeriods"]
-
- })
-
-
-
- })
-
+      invalidatesTags: ["StudentEnrollment"],
+    }),
+  }),
 });
 
-
 export const {
+  useGetEnrollmentsQuery,
 
-useGetAcademicPeriodsQuery,
+  useGetEnrollmentByIdQuery,
 
-useGetCurrentAcademicPeriodQuery,
+  useCreateEnrollmentMutation,
 
-useCreateAcademicPeriodMutation,
-
-useSetCurrentAcademicPeriodMutation,
-
-useDeleteAcademicPeriodMutation,
-
-}=academicPeriodApi;
+  useDeleteEnrollmentMutation,
+} = studentEnrollmentApi;
+ 

@@ -1,7 +1,7 @@
 import { api } from "../../api";
 
 // =================================
-// STUDENT TYPES
+// TYPES
 // =================================
 
 export type RegistrationStatus =
@@ -13,62 +13,64 @@ export type RegistrationStatus =
 
 export interface Student {
   id: string;
-
   studentCode: string;
 
   firstName: string;
-
   lastName: string;
 
   gender?: string;
-
   dateOfBirth?: string;
 
   registrationStatus: RegistrationStatus;
 
   schoolId: string;
+  parentId?: string;
+
+  school?: {
+    id: string;
+    name: string;
+  };
+
+  parent?: {
+    id: string;
+    name?: string;
+    account?: {
+      name?: string;
+    };
+  };
 
   approvedById?: string;
-
   approvedAt?: string;
 
   createdAt: string;
-
   updatedAt: string;
 }
 
 // =================================
-// RESPONSE
+// PAGED RESPONSE
 // =================================
 
 export interface StudentRegistrationResponse {
   data: Student[];
-
   total: number;
-
   page: number;
-
   limit: number;
-
   totalPages: number;
 }
 
 // =================================
-// CREATE REGISTRATION
+// REGISTER
 // =================================
 
 export interface CreateStudentRequest {
   firstName: string;
-
   lastName: string;
-
-  gender?: string;
-
-  dateOfBirth?: string;
-
   studentCode: string;
 
   schoolId: string;
+
+  gender?: string;
+  dateOfBirth?: string;
 
   parentId?: string;
 }
@@ -83,7 +85,6 @@ export interface ApproveStudentRequest {
 
 export interface RejectStudentRequest {
   id: string;
-
   reason?: string;
 }
 
@@ -92,63 +93,111 @@ export interface RejectStudentRequest {
 // =================================
 
 export const studentRegistrationApi = api.injectEndpoints({
-  endpoints: (build) => ({
-    // GET STUDENTS WAITING APPROVAL
+  endpoints: (builder) => ({
+    // ============================
+    // Registrar
+    // ============================
 
-    getPendingStudents: build.query<StudentRegistrationResponse, void>({
-      query: () => "/students/pending",
-
-      providesTags: ["StudentRegistration"], 
-    }),
-
-    // REGISTER STUDENT
-
-    registerStudent: build.mutation<Student, CreateStudentRequest>({
+    registerStudent: builder.mutation<Student, CreateStudentRequest>({
       query: (body) => ({
         url: "/students/register",
-
         method: "POST",
-
         body,
       }),
-
       invalidatesTags: ["StudentRegistration"],
     }),
 
-    // APPROVE STUDENT
+    // ============================
+    // Pending Students
+    // ============================
 
-    approveStudent: build.mutation<Student, ApproveStudentRequest>({
+    getPendingStudents: builder.query<StudentRegistrationResponse, void>({
+      query: () => ({
+        url: "/students/pending",
+        method: "GET",
+      }),
+      providesTags: ["StudentRegistration"],
+    }),
+
+    // ============================
+    // Approve
+    // ============================
+
+    approveStudent: builder.mutation<Student, ApproveStudentRequest>({
       query: ({ id }) => ({
         url: `/students/${id}/approve`,
-
         method: "PATCH",
       }),
-
       invalidatesTags: ["StudentRegistration"],
     }),
 
-    // REJECT STUDENT
+    // ============================
+    // Reject
+    // ============================
 
-    rejectStudent: build.mutation<Student, RejectStudentRequest>({
-      query: ({ id, ...body }) => ({
+    rejectStudent: builder.mutation<Student, RejectStudentRequest>({
+      query: ({ id, reason }) => ({
         url: `/students/${id}/reject`,
-
         method: "PATCH",
-
-        body,
+        body: { reason },
       }),
-
       invalidatesTags: ["StudentRegistration"],
+    }),
+
+    // ============================
+    // Approved Students
+    // ============================
+
+    getApprovedStudents: builder.query<StudentRegistrationResponse, void>({
+      query: () => ({
+        url: "/students/approved",
+        method: "GET",
+      }),
+      providesTags: ["StudentRegistration"],
+    }),
+
+    // ============================
+    // Rejected Students
+    // ============================
+
+    getRejectedStudents: builder.query<StudentRegistrationResponse, void>({
+      query: () => ({
+        url: "/students/rejected",
+        method: "GET",
+      }),
+      providesTags: ["StudentRegistration"],
+    }),
+
+    // ============================
+    // Student Details
+    // ============================
+
+    getStudentById: builder.query<Student, string>({
+      query: (id) => ({
+        url: `/students/${id}`,
+        method: "GET",
+      }),
+      providesTags: ["StudentRegistration"],
     }),
   }),
 });
+ 
+// =================================
+// HOOKS
+// =================================
 
 export const {
-  useGetPendingStudentsQuery,
-
   useRegisterStudentMutation,
+
+  useGetPendingStudentsQuery,
 
   useApproveStudentMutation,
 
-  useRejectStudentMutation,  
-} = studentRegistrationApi;
+  useRejectStudentMutation,
+
+  useGetApprovedStudentsQuery,
+
+  useGetRejectedStudentsQuery,
+
+  useGetStudentByIdQuery,
+} = studentRegistrationApi; 
