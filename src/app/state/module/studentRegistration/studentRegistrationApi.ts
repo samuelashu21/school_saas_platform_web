@@ -28,6 +28,21 @@ export interface Student {
 
   schoolId: string;
 
+  parentId?: string;
+
+  school?: {
+    id?: string;
+    name?: string;
+  };
+
+  parent?: {
+    id?: string;
+    name?: string;
+    account?: {
+      name?: string;
+    };
+  };
+
   approvedById?: string;
 
   approvedAt?: string;
