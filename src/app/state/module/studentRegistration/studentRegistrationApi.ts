@@ -1,367 +1,154 @@
 import { api } from "../../api";
 
+// =================================
+// STUDENT TYPES
+// =================================
 
-// =============================
-// TYPES
-// =============================
+export type RegistrationStatus =
+  | "PENDING"
+  | "APPROVED"
+  | "REJECTED"
+  | "ACTIVE"
+  | "INACTIVE";
 
+export interface Student {
+  id: string;
 
-export interface StudentRegistrationWindow {
+  studentCode: string;
 
-  id:string;
+  firstName: string;
 
-  name:string;
+  lastName: string;
 
-  startDate:string;
+  gender?: string;
 
-  endDate:string;
+  dateOfBirth?: string;
 
-  isActive:boolean;
+  registrationStatus: RegistrationStatus;
 
-  createdBy:string;
+  schoolId: string;
 
-  createdAt:string;
+  approvedById?: string;
 
-  updatedAt:string;
+  approvedAt?: string;
 
+  createdAt: string;
+
+  updatedAt: string;
 }
 
+// =================================
+// RESPONSE
+// =================================
 
+export interface StudentRegistrationResponse {
+  data: Student[];
 
+  total: number;
 
+  page: number;
 
-export interface RegistrationResponse {
+  limit: number;
 
-  data: StudentRegistrationWindow[];
-
-  total:number;
-
-  page:number;
-
-  limit:number;
-
-  totalPages:number;
-
+  totalPages: number;
 }
 
+// =================================
+// CREATE REGISTRATION
+// =================================
 
+export interface CreateStudentRequest {
+  firstName: string;
 
+  lastName: string;
 
+  gender?: string;
 
-export interface CreateStudentRegistrationRequest {
+  dateOfBirth?: string;
 
-  name:string;
+  studentCode: string;
 
-  startDate:string;
+  schoolId: string;
 
-  endDate:string;
-
+  parentId?: string;
 }
 
+// =================================
+// APPROVAL
+// =================================
 
-
-
-
-export interface UpdateStudentRegistrationRequest {
-
-  id:string;
-
-  name?:string;
-
-  startDate?:string;
-
-  endDate?:string;
-
-  isActive?:boolean;
-
+export interface ApproveStudentRequest {
+  id: string;
 }
 
+export interface RejectStudentRequest {
+  id: string;
 
-
-
-
-export interface RegistrationQuery {
-
-  page?:number;
-
-  limit?:number;
-
-  search?:string;
-
-  sort?:
-  "name"
-  |
-  "startDate"
-  |
-  "endDate";
-
-
-  order?:
-  "asc"
-  |
-  "desc";
-
+  reason?: string;
 }
 
-
-
-
-
-// =============================
+// =================================
 // API
-// =============================
-
-
-export const studentRegistrationApi =
-api.injectEndpoints({
-
-
- endpoints:(build)=>({
-
-
-
-
-// =================================
-// GET ALL WINDOWS
 // =================================
 
+export const studentRegistrationApi = api.injectEndpoints({
+  endpoints: (build) => ({
+    // GET STUDENTS WAITING APPROVAL
 
-getRegistrationWindows:
+    getPendingStudents: build.query<StudentRegistrationResponse, void>({
+      query: () => "/students/pending",
 
-build.query<
-RegistrationResponse,
-RegistrationQuery | void
->({
+      providesTags: ["StudentRegistration"], 
+    }),
 
-query:(params)=>({
+    // REGISTER STUDENT
 
-url:"/student-registration",
+    registerStudent: build.mutation<Student, CreateStudentRequest>({
+      query: (body) => ({
+        url: "/students/register",
 
-params:params ?? undefined
+        method: "POST",
 
-}),
+        body,
+      }),
 
+      invalidatesTags: ["StudentRegistration"],
+    }),
 
-providesTags:[
-"StudentRegistration"
-],
+    // APPROVE STUDENT
 
-}),
+    approveStudent: build.mutation<Student, ApproveStudentRequest>({
+      query: ({ id }) => ({
+        url: `/students/${id}/approve`,
 
+        method: "PATCH",
+      }),
 
+      invalidatesTags: ["StudentRegistration"],
+    }),
 
+    // REJECT STUDENT
 
+    rejectStudent: build.mutation<Student, RejectStudentRequest>({
+      query: ({ id, ...body }) => ({
+        url: `/students/${id}/reject`,
 
+        method: "PATCH",
 
-// =================================
-// GET ACTIVE WINDOW
-// =================================
+        body,
+      }),
 
-
-getActiveRegistrationWindow:
-
-build.query<
-
-{
-
- open:boolean;
-
- message?:string;
-
- window?:StudentRegistrationWindow;
-
-},
-
-void
-
->({
-
-
- query:()=>"/student-registration/active",
-
-
-}),
-
-
-
-
-
-
-
-// =================================
-// CREATE
-// =================================
-
-
-createRegistrationWindow:
-
-build.mutation<
-
-StudentRegistrationWindow,
-
-CreateStudentRegistrationRequest
-
->({
-
-
- query:(body)=>({
-
-
-   url:"/student-registration",
-
-   method:"POST",
-
-   body,
-
-
- }),
-
-
-
- invalidatesTags:[
-
-  "StudentRegistration"
-
- ],
-
-
-
-}),
-
-
-
-
-
-
-
-// =================================
-// UPDATE
-// =================================
-
-
-updateRegistrationWindow:
-
-build.mutation<
-
-StudentRegistrationWindow,
-
-UpdateStudentRegistrationRequest
-
->({
-
-
- query:({id,...body})=>({
-
-
-   url:`/student-registration/${id}`,
-
-   method:"PUT",
-
-   body,
-
-
- }),
-
-
-
- invalidatesTags:[
-
-  "StudentRegistration"
-
- ],
-
-
-
-}),
-
-
-
-
-
-
-
-// =================================
-// DELETE
-// =================================
-
-
-deleteRegistrationWindow:
-
-build.mutation<
-
-{
-
- message:string;
-
-},
-
-string
-
->({
-
-
-
- query:(id)=>({
-
-
-   url:`/student-registration/${id}`,
-
-   method:"DELETE",
-
-
- }),
-
-
-
-
- invalidatesTags:[
-
-  "StudentRegistration"
-
- ],
-
-
-
-}),
-
-
-
-
-
- }),
-
-
-
+      invalidatesTags: ["StudentRegistration"],
+    }),
+  }),
 });
 
-
-
-
-
-
-
-// =============================
-// EXPORT HOOKS
-// =============================
-
-
 export const {
+  useGetPendingStudentsQuery,
 
+  useRegisterStudentMutation,
 
-useGetRegistrationWindowsQuery,
+  useApproveStudentMutation,
 
-
-useGetActiveRegistrationWindowQuery,
-
-
-useCreateRegistrationWindowMutation,
-
-
-useUpdateRegistrationWindowMutation,
-
-
-useDeleteRegistrationWindowMutation,
-
-
-
-}=studentRegistrationApi;
+  useRejectStudentMutation,  
+} = studentRegistrationApi;

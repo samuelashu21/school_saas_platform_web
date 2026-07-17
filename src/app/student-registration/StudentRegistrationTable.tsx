@@ -1,335 +1,143 @@
 "use client";
 
+import { CheckCircle, XCircle } from "lucide-react";
+
 import {
-  CalendarDays,
-  Edit,
-  Trash2,
-  CheckCircle,
-  XCircle,
-  ArrowUpDown,
-} from "lucide-react";
+  useApproveStudentMutation,
+  useRejectStudentMutation,
+} from "@/app/state/module/studentRegistration/studentRegistrationApi";
 
-import { useDeleteRegistrationWindowMutation } from "@/app/state/module/studentRegistration/studentRegistrationApi";
-
-import type { StudentRegistrationWindow } from "@/app/state/module/studentRegistration/studentRegistrationApi";
+import type { Student } from "@/app/state/module/studentRegistration/studentRegistrationApi";
 
 interface Props {
-  windows: StudentRegistrationWindow[];
+  students: Student[];
+} 
 
-  onEdit: (window: StudentRegistrationWindow) => void;
+export default function StudentRegistrationTable({ students }: Props) {
+  const [approveStudent, { isLoading: approving }] =
+    useApproveStudentMutation();
 
-  sort?: "name" | "startDate" | "endDate";
+  const [rejectStudent] = useRejectStudentMutation();
 
-  setSort?: (value: "name" | "startDate" | "endDate") => void;
-}
-
-const StudentRegistrationTable = ({
-  windows,
-  onEdit,
-  sort,
-  setSort,
-}: Props) => {
-  const [deleteWindow] = useDeleteRegistrationWindowMutation();
-
-  const handleDelete = async (id: string) => {
-    const confirmDelete = window.confirm("Delete registration window?");
-
-    if (!confirmDelete) return;
-
+  const approve = async (id: string) => {
     try {
-      await deleteWindow(id).unwrap();
+      await approveStudent({ id }).unwrap();
     } catch (error) {
       console.error(error);
     }
   };
 
-  const sortHeader = (
-    label: string,
-    value: "name" | "startDate" | "endDate",
-  ) => (
-    <button
-      onClick={() => setSort && setSort(value)}
-      className="
-      flex
-      items-center
-      gap-1
-      font-semibold
-      "
-    >
-      {label}
-
-      <ArrowUpDown
-        className="
-        w-3
-        h-3
-        "
-      />
-    </button>
-  );
+  const reject = async (id: string) => {
+    try {
+      await rejectStudent({
+        id,
+      }).unwrap();
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <div
       className="
-      bg-white
-      rounded-2xl
-      border
-      border-gray-100
-      shadow-sm
-      overflow-x-auto
-      "
+bg-white
+rounded-xl
+shadow
+overflow-hidden
+"
     >
-      <table
-        className="
-        w-full
-        text-sm
-        "
-      >
+      <table className="w-full">
         <thead
           className="
-          bg-gray-50
-          "
+bg-gray-100
+"
         >
           <tr>
-            <th
-              className="
-              p-4
-              text-left
-              "
-            >
-              {sortHeader("Name", "name")}
-            </th>
+            <th className="p-4">Student</th>
 
-            <th
-              className="
-              p-4
-              text-left
-              "
-            >
-              {sortHeader("Start Date", "startDate")}
-            </th>
+            <th className="p-4">Code</th>
 
-            <th
-              className="
-              p-4
-              text-left
-              "
-            >
-              {sortHeader("End Date", "endDate")}
-            </th>
+            <th className="p-4">Status</th>
 
-            <th
-              className="
-              p-4
-              text-left
-              "
-            >
-              Status
-            </th>
-
-            <th
-              className="
-              p-4
-              text-center
-              "
-            >
-              Actions
-            </th>
+            <th className="p-4">Actions</th>
           </tr>
         </thead>
 
         <tbody>
-          {windows.length === 0 ? (
-            <tr>
-              <td
-                colSpan={5}
-                className="
-                  text-center
-                  py-8
-                  text-gray-400
-                  "
-              >
-                No registration windows found.
+          {students.map((student) => (
+            <tr
+              key={student.id}
+              className="
+border-b
+"
+            >
+              <td className="p-4">
+                {student.firstName} {student.lastName}
+              </td>
+
+              <td className="p-4">{student.studentCode}</td>
+
+              <td className="p-4">
+                <span
+                  className="
+px-3
+py-1
+rounded-full
+bg-yellow-100
+text-yellow-700
+"
+                >
+                  {student.registrationStatus}
+                </span>
+              </td>
+
+              <td className="p-4">
+                <div
+                  className="
+flex
+gap-2
+"
+                >
+                  <button
+                    disabled={approving}
+                    onClick={() => approve(student.id)}
+                    className="
+bg-green-600
+text-white
+px-3
+py-2
+rounded-lg
+flex
+gap-2
+items-center
+"
+                  >
+                    <CheckCircle size={16} />
+                    Approve
+                  </button>
+
+                  <button
+                    onClick={() => reject(student.id)}
+                    className="
+bg-red-600
+text-white
+px-3
+py-2
+rounded-lg
+flex
+gap-2
+items-center
+"
+                  >
+                    <XCircle size={16} />
+                    Reject
+                  </button>
+                </div>
               </td>
             </tr>
-          ) : (
-            windows.map((window) => (
-              <tr
-                key={window.id}
-                className="
-                border-t
-                hover:bg-gray-50
-                "
-              >
-                <td
-                  className="
-                  p-4
-                  "
-                >
-                  <div
-                    className="
-                    flex
-                    items-center
-                    gap-3
-                    "
-                  >
-                    <div
-                      className="
-                      w-10
-                      h-10
-                      rounded-xl
-                      bg-blue-50
-                      flex
-                      items-center
-                      justify-center
-                      "
-                    >
-                      <CalendarDays
-                        className="
-                        w-5
-                        h-5
-                        text-blue-600
-                        "
-                      />
-                    </div>
-
-                    <div>
-                      <p
-                        className="
-                        font-semibold
-                        text-gray-800
-                        "
-                      >
-                        {window.name}
-                      </p>
-
-                      <p
-                        className="
-                        text-xs
-                        text-gray-400
-                        "
-                      >
-                        ID: {window.id}
-                      </p>
-                    </div>
-                  </div>
-                </td>
-
-                <td
-                  className="
-                  p-4
-                  text-gray-600
-                  "
-                >
-                  {new Date(window.startDate).toLocaleDateString()}
-                </td>
-
-                <td
-                  className="
-                  p-4
-                  text-gray-600
-                  "
-                >
-                  {new Date(window.endDate).toLocaleDateString()}
-                </td>
-
-                <td
-                  className="
-                  p-4
-                  "
-                >
-                  {window.isActive ? (
-                    <span
-                      className="
-                        flex
-                        items-center
-                        gap-2
-                        text-green-600
-                        font-medium
-                        "
-                    >
-                      <CheckCircle
-                        className="
-                          w-4
-                          h-4
-                          "
-                      />
-                      Active
-                    </span>
-                  ) : (
-                    <span
-                      className="
-                        flex
-                        items-center
-                        gap-2
-                        text-red-500
-                        font-medium
-                        "
-                    >
-                      <XCircle
-                        className="
-                          w-4
-                          h-4
-                          "
-                      />
-                      Closed
-                    </span>
-                  )}
-                </td>
-
-                <td
-                  className="
-                  p-4
-                  "
-                >
-                  <div
-                    className="
-                    flex
-                    justify-center
-                    gap-2
-                    "
-                  >
-                    <button
-                      onClick={() => onEdit(window)}
-                      className="
-                      p-2
-                      rounded-lg
-                      text-blue-600
-                      hover:bg-blue-50
-                      "
-                    >
-                      <Edit
-                        className="
-                        w-4
-                        h-4
-                        "
-                      />
-                    </button>
-
-                    <button
-                      onClick={() => handleDelete(window.id)}
-                      className="
-                      p-2
-                      rounded-lg
-                      text-red-500
-                      hover:bg-red-50
-                      "
-                    >
-                      <Trash2
-                        className="
-                        w-4
-                        h-4
-                        "
-                      />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))
-          )}
-        </tbody>
+          ))}
+        </tbody> 
       </table>
-    </div> 
+    </div>
   );
-};
-
-export default StudentRegistrationTable;
+}
