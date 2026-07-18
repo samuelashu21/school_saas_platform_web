@@ -11,193 +11,406 @@ export type RegistrationStatus =
   | "ACTIVE"
   | "INACTIVE";
 
+// =================================
+// DROPDOWN TYPES
+// =================================
+
+export interface RegistrationSchool {
+  id: string;
+  name: string;
+}
+
+export interface RegistrationGrade {
+  id: string;
+  name: string;
+  level: number;
+}
+
+export interface RegistrationClass {
+  id: string;
+
+  name: string;
+
+  gradeLevel?: {
+    id: string;
+
+    name: string;
+  };
+}
+
+export interface RegistrationAcademicPeriod {
+  id: string;
+
+  academicYear: string;
+
+  semester: string;
+
+  startDate: string;
+
+  endDate: string;
+
+  isActive: boolean;
+}
+
+// =================================
+// STUDENT
+// =================================
+
 export interface Student {
   id: string;
+
   studentCode: string;
 
   firstName: string;
+
   lastName: string;
 
   gender?: string;
+
   dateOfBirth?: string;
 
   registrationStatus: RegistrationStatus;
 
   schoolId: string;
-  parentId?: string;
+
+  account?: {
+    id: string;
+
+    firstName: string;
+
+    lastName: string;
+
+    email: string;
+
+    photo?: string;
+  };
 
   school?: {
     id: string;
+
     name: string;
   };
 
   parent?: {
     id: string;
-    name?: string;
+
+    phone?: string;
+
     account?: {
-      name?: string;
+      id: string;
+
+      firstName: string;
+
+      lastName: string;
+
+      email: string;
     };
   };
 
-  approvedById?: string;
+  registrations?: {
+    id: string;
+
+    status: string;
+
+    class?: {
+      id: string;
+
+      name: string;
+
+      gradeLevel?: {
+        id: string;
+
+        name: string;
+      };
+    };
+
+    academicPeriod?: {
+      id: string;
+
+      academicYear: string;
+
+      semester: string;
+    };
+  }[];
+
+  enrollments?: {
+    id: string;
+
+    enrollmentType: string;
+
+    status: string;
+
+    class?: {
+      id: string;
+
+      name: string;
+    };
+
+    academicPeriod?: {
+      academicYear: string;
+
+      semester: string;
+    };
+  }[];
+
+  approvedBy?: {
+    id: string;
+
+    firstName: string;
+
+    lastName: string;
+
+    email: string;
+  };
+
   approvedAt?: string;
 
   createdAt: string;
+
   updatedAt: string;
 }
 
 // =================================
-// PAGED RESPONSE
+// CREATE STUDENT REQUEST
 // =================================
-
-export interface StudentRegistrationResponse {
-  data: Student[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
-
-// =================================
-// REGISTER
-// =================================
+// studentCode removed because backend generates:
+// STU-0001, STU-0002 ...
 
 export interface CreateStudentRequest {
   firstName: string;
+
   lastName: string;
-  studentCode: string;
+
+  gender?: string;
+
+  dateOfBirth?: string;
+
+  studentEmail?: string;
 
   schoolId: string;
 
-  gender?: string;
-  dateOfBirth?: string;
+  classId: string;
 
-  parentId?: string;
+  academicPeriodId: string;
+
+  parentFirstName?: string;
+
+  parentLastName?: string;
+
+  parentEmail?: string;
+
+  parentPhone?: string;
 }
 
 // =================================
-// APPROVAL
+// API RESPONSE TYPES
 // =================================
 
-export interface ApproveStudentRequest {
-  id: string;
-}
+export interface RegistrationResponse {
+  message: string;
 
-export interface RejectStudentRequest {
-  id: string;
-  reason?: string;
+  data: {
+    student: Student;
+
+    registration: any;
+  };
 }
 
 // =================================
-// API
+// API ENDPOINTS
 // =================================
 
 export const studentRegistrationApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    // ============================
-    // Registrar
-    // ============================
+    // =====================================================
+    // ACTIVE WINDOW
+    // =====================================================
 
-    registerStudent: builder.mutation<Student, CreateStudentRequest>({
+    getActiveRegistrationWindow: builder.query<any, void>({
+      query: () => ({
+        url: "/student-registration/windows/active",
+
+        method: "GET",
+      }),
+    }),
+
+    // =====================================================
+    // DROPDOWN DATA
+    // =====================================================
+
+    getRegistrationSchools: builder.query<RegistrationSchool[], void>({
+      query: () => ({
+        url: "/student-registration/schools",
+
+        method: "GET",
+      }),
+    }),
+
+    getSchoolGrades: builder.query<RegistrationGrade[], string>({
+      query: (schoolId) => ({
+        url: `/student-registration/schools/${schoolId}/grades`,
+
+        method: "GET",
+      }),
+    }),
+
+    getGradeClasses: builder.query<RegistrationClass[], string>({
+      query: (gradeId) => ({
+        url: `/student-registration/grades/${gradeId}/classes`,
+
+        method: "GET",
+      }),
+    }),
+
+    getRegistrationAcademicPeriods: builder.query<
+      RegistrationAcademicPeriod[],
+      void
+    >({
+      query: () => ({
+        url: "/student-registration/academic-periods",
+
+        method: "GET",
+      }),
+    }),
+
+    // =====================================================
+    // REGISTER STUDENT
+    // =====================================================
+
+    registerStudent: builder.mutation<
+      RegistrationResponse,
+      CreateStudentRequest
+    >({
       query: (body) => ({
-        url: "/students/register",
+        url: "/student-registration/register",
+
         method: "POST",
+
         body,
       }),
+
       invalidatesTags: ["StudentRegistration"],
     }),
 
-    // ============================
-    // Pending Students
-    // ============================
+    // =====================================================
+    // ALL STUDENTS
+    // =====================================================
 
-    getPendingStudents: builder.query<StudentRegistrationResponse, void>({
+    getStudents: builder.query<Student[], void>({
       query: () => ({
-        url: "/students/pending",
+        url: "/student-registration/students",
+
         method: "GET",
       }),
+
       providesTags: ["StudentRegistration"],
     }),
 
-    // ============================
-    // Approve
-    // ============================
+    // =====================================================
+    // PENDING STUDENTS
+    // =====================================================
 
-    approveStudent: builder.mutation<Student, ApproveStudentRequest>({
-      query: ({ id }) => ({
-        url: `/students/${id}/approve`,
-        method: "PATCH",
-      }),
-      invalidatesTags: ["StudentRegistration"],
-    }),
-
-    // ============================
-    // Reject
-    // ============================
-
-    rejectStudent: builder.mutation<Student, RejectStudentRequest>({
-      query: ({ id, reason }) => ({
-        url: `/students/${id}/reject`,
-        method: "PATCH",
-        body: { reason },
-      }),
-      invalidatesTags: ["StudentRegistration"],
-    }),
-
-    // ============================
-    // Approved Students
-    // ============================
-
-    getApprovedStudents: builder.query<StudentRegistrationResponse, void>({
+    getPendingStudents: builder.query<
+      {
+        data: Student[];
+        total: number;
+      },
+      void
+    >({
       query: () => ({
-        url: "/students/approved",
+        url: "/student-registration/pending",
+
         method: "GET",
       }),
+
       providesTags: ["StudentRegistration"],
     }),
 
-    // ============================
-    // Rejected Students
-    // ============================
+    // =====================================================
+    // SINGLE REGISTRATION
+    // =====================================================
 
-    getRejectedStudents: builder.query<StudentRegistrationResponse, void>({
-      query: () => ({
-        url: "/students/rejected",
-        method: "GET",
-      }),
-      providesTags: ["StudentRegistration"],
-    }),
-
-    // ============================
-    // Student Details
-    // ============================
-
-    getStudentById: builder.query<Student, string>({
+    getRegistrationById: builder.query<Student, string>({
       query: (id) => ({
-        url: `/students/${id}`,
+        url: `/student-registration/${id}`,
+
         method: "GET",
       }),
+
       providesTags: ["StudentRegistration"],
+    }),
+
+    // =====================================================
+    // APPROVE
+    // =====================================================
+
+    approveStudent: builder.mutation<any, { id: string }>({
+      query: ({ id }) => ({
+        url: `/student-registration/${id}/approve`,
+
+        method: "PUT",
+      }),
+
+      invalidatesTags: ["StudentRegistration"],
+    }),
+
+    // =====================================================
+    // REJECT
+    // =====================================================
+
+    rejectStudent: builder.mutation<
+      any,
+      {
+        id: string;
+        reason?: string;
+      }
+    >({
+      query: ({ id, reason }) => ({
+        url: `/student-registration/${id}/reject`,
+        method: "PUT",
+        body: {
+          reason,
+        },
+      }),
+      invalidatesTags: ["StudentRegistration"],
     }),
   }),
+
+  overrideExisting: false,
 });
- 
+
 // =================================
 // HOOKS
 // =================================
 
 export const {
+  useGetActiveRegistrationWindowQuery,
+
+  // dropdowns
+
+  useGetRegistrationSchoolsQuery,
+
+  useGetSchoolGradesQuery,
+
+  useGetGradeClassesQuery,
+
+  useGetRegistrationAcademicPeriodsQuery,
+
+  // registration
+
   useRegisterStudentMutation,
 
+  // students
+
+  useGetStudentsQuery,
+
   useGetPendingStudentsQuery,
+
+  useGetRegistrationByIdQuery,
+
+  // approval
 
   useApproveStudentMutation,
 
   useRejectStudentMutation,
-
-  useGetApprovedStudentsQuery,
-
-  useGetRejectedStudentsQuery,
-
-  useGetStudentByIdQuery,
-} = studentRegistrationApi; 
+} = studentRegistrationApi;

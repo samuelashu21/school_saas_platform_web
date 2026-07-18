@@ -211,7 +211,9 @@ scrollbar-track-transparent
           isCollapsed={isSidebarCollapsed}
           testId="nav-dashboard"
         />
-
+ 
+{isAdmin && (
+     <> 
         <SidebarLink
           href="/schools"
           icon={Building2}
@@ -219,7 +221,11 @@ scrollbar-track-transparent
           isCollapsed={isSidebarCollapsed}
           testId="nav-schools"
         />
+  </>
+        )}
 
+{isAdmin && (
+     <> 
         <SidebarLink
           href="/grades"
           icon={ClipboardList}
@@ -227,7 +233,12 @@ scrollbar-track-transparent
           isCollapsed={isSidebarCollapsed}
           testId="nav-grades"
         />
+  </>
+        )}
 
+
+{isAdmin && (
+     <> 
         <SidebarLink
           href="/classes"
           icon={School}
@@ -235,7 +246,12 @@ scrollbar-track-transparent
           isCollapsed={isSidebarCollapsed}
           testId="nav-classes"
         />
+  </>
+        )}
 
+
+{isAdmin && (
+     <> 
         <SidebarLink
           href="/subjects"
           icon={BookOpen}
@@ -243,7 +259,12 @@ scrollbar-track-transparent
           isCollapsed={isSidebarCollapsed}
           testId="nav-subjects"
         />
+      </>
+        )}
 
+
+{isAdmin && (
+     <> 
         <SidebarLink
           href="/teachers"
           icon={UsersRound}
@@ -251,7 +272,12 @@ scrollbar-track-transparent
           isCollapsed={isSidebarCollapsed}
           testId="nav-teachers"
         />
+             </>
+        )}
 
+
+{isAdmin && (
+     <> 
         <SidebarLink
           href="/academic-periods"
           icon={CalendarDays}
@@ -259,7 +285,13 @@ scrollbar-track-transparent
           isCollapsed={isSidebarCollapsed}
           testId="nav-academic-periods"
         />
+         </>
+        )}
 
+
+
+{isAdmin && (
+          <> 
         <SidebarLink
           href="/teacher-subjects"
           icon={GraduationCap}
@@ -267,6 +299,9 @@ scrollbar-track-transparent
           isCollapsed={isSidebarCollapsed}
           testId="nav-teacher-subjects"
         />
+ </>
+        )}
+
 
         {/* ============================
             REGISTRAR ONLY
@@ -306,6 +341,8 @@ scrollbar-track-transparent
           </>
         )}
 
+         {isAdmin && (
+          <>
         <SidebarLink
           href="/student-enrollment"
           icon={Users}
@@ -313,6 +350,9 @@ scrollbar-track-transparent
           isCollapsed={isSidebarCollapsed}
           testId="nav-student-enrollment"
         />
+
+         </>
+        )}
 
         <SidebarLink
           href="/settings"

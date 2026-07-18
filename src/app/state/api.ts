@@ -258,13 +258,13 @@ export const api = createApi({
     }),
 
     // =====================
-    // STUDENTS
+    // StudentRegistration
     // =====================
 
     getStudents: build.query<Student[], void>({
-      query: () => "/students",
-
-      providesTags: ["Students"],
+      query: () => "/student-registration",
+ 
+      providesTags: ["StudentRegistration"],
     }),
   }),
 });
@@ -295,3 +295,4 @@ export const {
   // students
   useGetStudentsQuery,
 } = api;
+ 

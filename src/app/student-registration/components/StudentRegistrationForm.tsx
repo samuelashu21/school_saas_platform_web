@@ -1,283 +1,825 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useState } from "react";
 import { toast } from "sonner";
+
 import {
   CreateStudentRequest,
   useRegisterStudentMutation,
+  useGetRegistrationSchoolsQuery,
+  useGetSchoolGradesQuery,
+  useGetGradeClassesQuery,
+  useGetRegistrationAcademicPeriodsQuery,
 } from "@/app/state/module/studentRegistration/studentRegistrationApi";
 
+
+// =====================================================
+// FORM TYPE
+// =====================================================
+
+
 type RegistrationFormState = {
-  studentCode: string;
+
   firstName: string;
+
   lastName: string;
+
   gender: string;
+
   dateOfBirth: string;
+
+  studentEmail: string;
+
+
   schoolId: string;
-  parentId: string;
+
+  gradeId: string;
+
+  classId: string;
+
+  academicPeriodId: string;
+
+
+  parentFirstName: string;
+
+  parentLastName: string;
+
+  parentEmail: string;
+
+  parentPhone: string;
+
 };
 
-type FieldErrors = Partial<Record<keyof RegistrationFormState, string>>;
 
-type ApiError = {
-  data?: {
-    message?: string;
-  };
-};
 
-const initialFormState: RegistrationFormState = {
-  studentCode: "",
+// =====================================================
+// INITIAL STATE
+// =====================================================
+
+
+const initialState: RegistrationFormState = {
+
   firstName: "",
+
   lastName: "",
+
   gender: "",
+
   dateOfBirth: "",
+
+  studentEmail: "",
+
+
   schoolId: "",
-  parentId: "",
+
+  gradeId: "",
+
+  classId: "",
+
+  academicPeriodId: "",
+
+
+  parentFirstName: "",
+
+  parentLastName: "",
+
+  parentEmail: "",
+
+  parentPhone: "",
+
 };
+
+
+
+
+// =====================================================
+// COMPONENT
+// =====================================================
+
 
 const StudentRegistrationForm = () => {
-  const [formState, setFormState] = useState<RegistrationFormState>(initialFormState);
-  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
-  const [apiError, setApiError] = useState<string>("");
-  const [successMessage, setSuccessMessage] = useState<string>("");
 
-  const [registerStudent, { isLoading }] = useRegisterStudentMutation();
 
-  const isSubmitDisabled = useMemo(
-    () =>
-      isLoading ||
-      !formState.studentCode ||
-      !formState.firstName ||
-      !formState.lastName ||
-      !formState.gender ||
-      !formState.dateOfBirth ||
-      !formState.schoolId,
-    [formState, isLoading],
-  );
+  const [form, setForm] =
+    useState<RegistrationFormState>(initialState);
 
-  const validate = () => {
-    const nextErrors: FieldErrors = {};
 
-    if (!formState.studentCode.trim()) {
-      nextErrors.studentCode = "Student code is required.";
-    }
 
-    if (!formState.firstName.trim()) {
-      nextErrors.firstName = "First name is required.";
-    }
+  const [error, setError] =
+    useState("");
 
-    if (!formState.lastName.trim()) {
-      nextErrors.lastName = "Last name is required.";
-    }
 
-    if (!formState.gender.trim()) {
-      nextErrors.gender = "Gender is required.";
-    }
 
-    if (!formState.dateOfBirth) {
-      nextErrors.dateOfBirth = "Date of birth is required.";
-    }
+  const [success, setSuccess] =
+    useState("");
 
-    if (!formState.schoolId.trim()) {
-      nextErrors.schoolId = "School ID is required.";
-    }
 
-    setFieldErrors(nextErrors);
 
-    return Object.keys(nextErrors).length === 0;
+  const [
+    registerStudent,
+    { isLoading },
+  ] =
+    useRegisterStudentMutation();
+
+
+
+
+  // =====================================================
+  // DROPDOWN DATA
+  // =====================================================
+
+
+  const {
+    data: schools = []
+  } =
+    useGetRegistrationSchoolsQuery();
+
+
+
+  const {
+    data: grades = []
+  } =
+    useGetSchoolGradesQuery(
+      form.schoolId,
+      {
+        skip: !form.schoolId,
+      }
+    );
+ 
+
+
+  const {
+    data: classes = []
+  } =
+    useGetGradeClassesQuery(
+      form.gradeId,
+      {
+        skip: !form.gradeId,
+      }
+    );
+
+
+
+  const {
+    data: academicPeriods = []
+  } =
+    useGetRegistrationAcademicPeriodsQuery();
+
+
+
+
+
+
+  const update = (
+    field: keyof RegistrationFormState,
+    value: string
+  ) => {
+
+
+    setForm(previous => ({
+
+      ...previous,
+
+      [field]: value,
+
+    }));
+
   };
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
 
-    setApiError("");
-    setSuccessMessage("");
 
-    if (!validate()) {
-      return;
-    }
+
+
+
+  // =====================================================
+  // SUBMIT
+  // =====================================================
+
+
+  const submit = async (
+    e: FormEvent
+  ) => {
+
+
+    e.preventDefault();
+
+
+    setError("");
+
+    setSuccess("");
+
+
 
     const payload: CreateStudentRequest = {
-      studentCode: formState.studentCode.trim(),
-      firstName: formState.firstName.trim(),
-      lastName: formState.lastName.trim(),
-      gender: formState.gender,
-      dateOfBirth: formState.dateOfBirth,
-      schoolId: formState.schoolId.trim(),
-      parentId: formState.parentId.trim() || undefined,
+
+
+      firstName: form.firstName,
+
+
+      lastName: form.lastName,
+
+
+      gender:
+        form.gender || undefined,
+
+
+
+      dateOfBirth:
+        form.dateOfBirth || undefined,
+
+
+
+      studentEmail:
+        form.studentEmail || undefined,
+
+
+
+      schoolId:
+        form.schoolId,
+
+
+
+      classId:
+        form.classId,
+
+
+
+      academicPeriodId:
+        form.academicPeriodId,
+
+
+
+      parentFirstName:
+        form.parentFirstName || undefined,
+
+
+
+      parentLastName:
+        form.parentLastName || undefined,
+
+
+
+      parentEmail:
+        form.parentEmail || undefined,
+
+
+
+      parentPhone:
+        form.parentPhone || undefined,
+
     };
 
-    try {
-      const createdStudent = await registerStudent(payload).unwrap();
 
-      const message = `Student ${createdStudent.firstName} ${createdStudent.lastName} registered successfully with status PENDING.`;
-      setSuccessMessage(message);
-      toast.success("Student registration submitted for approval.");
-      setFormState(initialFormState);
-      setFieldErrors({});
-    } catch (error) {
-      const registrationError = error as ApiError;
-      setApiError(registrationError.data?.message ?? "Failed to register student.");
+
+    try {
+
+
+      const response =
+        await registerStudent(payload).unwrap();
+
+
+
+      setSuccess(
+        `Student registered successfully. Student Code: ${response.data.student.studentCode}`
+      );
+
+
+
+      toast.success(
+        "Student registered successfully"
+      );
+
+
+
+      setForm(initialState);
+
+
+
+    } catch (err: any) {
+
+
+      setError(
+        err?.data?.message ??
+        "Registration failed"
+      );
+
+
     }
+
+
   };
 
-  const inputClassName =
-    "w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500";
+
+
+
+
+  const inputClass =
+    "w-full rounded-lg border px-3 py-2";
+
+
+
+
+
 
   return (
-    <div className="rounded-xl bg-white p-6 shadow-md">
-      <form className="space-y-4" onSubmit={handleSubmit}>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div>
-            <label className="mb-1 block text-sm font-semibold text-gray-700">Student Code</label>
-            <input
-              className={inputClassName}
-              value={formState.studentCode}
-              onChange={(event) =>
-                setFormState((previous) => ({
-                  ...previous,
-                  studentCode: event.target.value,
-                }))
-              }
-              placeholder="STD-2026-001"
-            />
-            {fieldErrors.studentCode && (
-              <p className="mt-1 text-xs text-red-600">{fieldErrors.studentCode}</p>
-            )}
-          </div>
 
-          <div>
-            <label className="mb-1 block text-sm font-semibold text-gray-700">School ID</label>
-            <input
-              className={inputClassName}
-              value={formState.schoolId}
-              onChange={(event) =>
-                setFormState((previous) => ({
-                  ...previous,
-                  schoolId: event.target.value,
-                }))
-              }
-              placeholder="school-id"
-            />
-            {fieldErrors.schoolId && (
-              <p className="mt-1 text-xs text-red-600">{fieldErrors.schoolId}</p>
-            )}
-          </div>
+    <div className="bg-white rounded-xl shadow p-6">
 
-          <div>
-            <label className="mb-1 block text-sm font-semibold text-gray-700">First Name</label>
-            <input
-              className={inputClassName}
-              value={formState.firstName}
-              onChange={(event) =>
-                setFormState((previous) => ({
-                  ...previous,
-                  firstName: event.target.value,
-                }))
-              }
-              placeholder="John"
-            />
-            {fieldErrors.firstName && (
-              <p className="mt-1 text-xs text-red-600">{fieldErrors.firstName}</p>
-            )}
-          </div>
 
-          <div>
-            <label className="mb-1 block text-sm font-semibold text-gray-700">Last Name</label>
-            <input
-              className={inputClassName}
-              value={formState.lastName}
-              onChange={(event) =>
-                setFormState((previous) => ({
-                  ...previous,
-                  lastName: event.target.value,
-                }))
-              }
-              placeholder="Doe"
-            />
-            {fieldErrors.lastName && (
-              <p className="mt-1 text-xs text-red-600">{fieldErrors.lastName}</p>
-            )}
-          </div>
+      <form
+        onSubmit={submit}
+        className="space-y-5"
+      >
 
-          <div>
-            <label className="mb-1 block text-sm font-semibold text-gray-700">Gender</label>
-            <select
-              className={inputClassName}
-              value={formState.gender}
-              onChange={(event) =>
-                setFormState((previous) => ({
-                  ...previous,
-                  gender: event.target.value,
-                }))
-              }
-            >
-              <option value="">Select gender</option>
-              <option value="MALE">Male</option>
-              <option value="FEMALE">Female</option>
-              <option value="OTHER">Other</option>
-            </select>
-            {fieldErrors.gender && <p className="mt-1 text-xs text-red-600">{fieldErrors.gender}</p>}
-          </div>
 
-          <div>
-            <label className="mb-1 block text-sm font-semibold text-gray-700">Date of Birth</label>
-            <input
-              type="date"
-              className={inputClassName}
-              value={formState.dateOfBirth}
-              onChange={(event) =>
-                setFormState((previous) => ({
-                  ...previous,
-                  dateOfBirth: event.target.value,
-                }))
-              }
-            />
-            {fieldErrors.dateOfBirth && (
-              <p className="mt-1 text-xs text-red-600">{fieldErrors.dateOfBirth}</p>
-            )}
-          </div>
+        <div className="grid md:grid-cols-2 gap-4">
 
-          <div className="md:col-span-2">
-            <label className="mb-1 block text-sm font-semibold text-gray-700">
-              Parent ID (optional)
-            </label>
-            <input
-              className={inputClassName}
-              value={formState.parentId}
-              onChange={(event) =>
-                setFormState((previous) => ({
-                  ...previous,
-                  parentId: event.target.value,
-                }))
-              }
-              placeholder="parent-id"
-            />
-          </div>
+
+
+          {/* FIRST NAME */}
+
+          <input
+
+            className={inputClass}
+
+            placeholder="First Name"
+
+            value={form.firstName}
+
+            onChange={
+              e => update(
+                "firstName",
+                e.target.value
+              )
+            }
+
+          />
+
+
+
+
+
+          {/* LAST NAME */}
+
+
+          <input
+
+            className={inputClass}
+
+            placeholder="Last Name"
+
+            value={form.lastName}
+
+            onChange={
+              e => update(
+                "lastName",
+                e.target.value
+              )
+            }
+
+          />
+
+
+
+
+
+          {/* EMAIL */}
+
+
+          <input
+
+            className={inputClass}
+
+            placeholder="Student Email"
+
+            type="email"
+
+            value={form.studentEmail}
+
+            onChange={
+              e => update(
+                "studentEmail",
+                e.target.value
+              )
+            }
+
+          />
+
+
+
+
+
+
+          {/* GENDER */}
+
+
+          <select
+
+            className={inputClass}
+
+            value={form.gender}
+
+            onChange={
+              e => update(
+                "gender",
+                e.target.value
+              )
+            }
+
+          >
+
+            <option value="">
+              Select Gender
+            </option>
+
+
+            <option value="MALE">
+              Male
+            </option>
+
+
+            <option value="FEMALE">
+              Female
+            </option>
+
+
+          </select>
+
+
+
+
+
+
+
+          {/* DOB */}
+
+
+          <input
+
+            type="date"
+
+            className={inputClass}
+
+            value={form.dateOfBirth}
+
+            onChange={
+              e => update(
+                "dateOfBirth",
+                e.target.value
+              )
+            }
+
+          />
+
+
+
+
+
+
+
+          {/* SCHOOL */}
+
+
+          <select
+
+            className={inputClass}
+
+            value={form.schoolId}
+
+            onChange={e => {
+
+              update(
+                "schoolId",
+                e.target.value
+              );
+
+
+              update(
+                "gradeId",
+                ""
+              );
+
+
+              update(
+                "classId",
+                ""
+              );
+
+
+            }}
+
+          >
+
+
+            <option value="">
+              Select School
+            </option>
+
+
+            {schools.map(school => (
+
+              <option
+                key={school.id}
+                value={school.id}
+              >
+
+                {school.name}
+
+              </option>
+
+            ))}
+
+
+          </select>
+
+
+
+
+
+
+
+          {/* GRADE */}
+
+
+          <select
+
+            className={inputClass}
+
+            disabled={!form.schoolId}
+
+            value={form.gradeId}
+
+            onChange={e => {
+
+
+              update(
+                "gradeId",
+                e.target.value
+              );
+
+
+              update(
+                "classId",
+                ""
+              );
+
+
+            }}
+
+          >
+
+
+            <option value="">
+              Select Grade
+            </option>
+
+
+            {grades.map(grade => (
+
+              <option
+                key={grade.id}
+                value={grade.id}
+              >
+
+                {grade.name}
+
+              </option>
+
+            ))}
+
+
+          </select>
+
+
+
+
+
+
+
+          {/* CLASS */}
+
+
+          <select
+
+            className={inputClass}
+
+            disabled={!form.gradeId}
+
+            value={form.classId}
+
+            onChange={
+              e => update(
+                "classId",
+                e.target.value
+              )
+            }
+
+          >
+
+
+            <option value="">
+              Select Class
+            </option>
+
+
+            {classes.map(cls => (
+
+              <option
+                key={cls.id}
+                value={cls.id}
+              >
+
+                {cls.name}
+
+              </option>
+
+            ))}
+
+
+          </select>
+
+
+
+
+
+
+
+          {/* ACADEMIC PERIOD */}
+
+
+          <select
+
+            className={inputClass}
+
+            value={form.academicPeriodId}
+
+            onChange={
+              e => update(
+                "academicPeriodId",
+                e.target.value
+              )
+            }
+
+          >
+
+
+            <option value="">
+              Select Academic Period
+            </option>
+
+
+            {academicPeriods.map(period => (
+
+              <option
+                key={period.id}
+                value={period.id}
+              >
+
+                {period.academicYear} -
+                {period.semester}
+
+              </option>
+
+            ))}
+
+
+          </select>
+
+
+
+
+
+
+          {/* PARENT */}
+
+
+          <input
+            className={inputClass}
+            placeholder="Parent First Name"
+            value={form.parentFirstName}
+            onChange={
+              e => update(
+                "parentFirstName",
+                e.target.value
+              )
+            }
+          />
+
+
+
+          <input
+            className={inputClass}
+            placeholder="Parent Last Name"
+            value={form.parentLastName}
+            onChange={
+              e => update(
+                "parentLastName",
+                e.target.value
+              )
+            }
+          />
+
+
+
+          <input
+            className={inputClass}
+            placeholder="Parent Email"
+            value={form.parentEmail}
+            onChange={
+              e => update(
+                "parentEmail",
+                e.target.value
+              )
+            }
+          />
+
+
+
+          <input
+            className={inputClass}
+            placeholder="Parent Phone"
+            value={form.parentPhone}
+            onChange={
+              e => update(
+                "parentPhone",
+                e.target.value
+              )
+            }
+          />
+
+
         </div>
 
-        {successMessage && (
-          <div className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
-            {successMessage}
+
+
+
+
+        {success && (
+
+          <div className="bg-green-100 text-green-700 p-3 rounded">
+
+            {success}
+
           </div>
+
         )}
 
-        {apiError && (
-          <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-            {apiError}
+
+
+
+
+
+        {error && (
+
+          <div className="bg-red-100 text-red-700 p-3 rounded">
+
+            {error}
+
           </div>
+
         )}
+
+
+
+
+
+
 
         <button
-          type="submit"
-          disabled={isSubmitDisabled}
-          className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+
+          disabled={isLoading}
+
+          className="
+          bg-blue-600
+          text-white
+          px-5
+          py-2
+          rounded-lg
+          "
+
         >
-          {isLoading ? "Registering..." : "Register Student"}
+
+          {
+            isLoading
+              ?
+              "Registering..."
+              :
+              "Register Student"
+          }
+
+
         </button>
+
+
+
       </form>
+
+
     </div>
+
   );
+
 };
 
-export default StudentRegistrationForm; 
+
+export default StudentRegistrationForm;

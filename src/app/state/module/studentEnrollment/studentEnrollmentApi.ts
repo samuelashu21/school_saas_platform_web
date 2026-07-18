@@ -18,6 +18,20 @@ export interface Student {
   firstName: string;
 
   lastName: string;
+
+  account?: {
+    firstName: string;
+
+    lastName: string;
+
+    email: string;
+  };
+}
+
+export interface School {
+  id: string;
+
+  name: string;
 }
 
 export interface AcademicPeriod {
@@ -39,13 +53,23 @@ export interface Enrollment {
 
   academicPeriodId: string;
 
-  enrollmentType: string;
+  enrollmentType: "NEW_STUDENT" | "TRANSFER" | "PROMOTION";
 
-  status: string;
+  status: "ACTIVE" | "COMPLETED" | "TRANSFERRED" | "WITHDRAWN" | "PROMOTED";
+
+  enrolledAt: string;
+
+  leftAt?: string;
+
+  promotionNote?: string;
 
   createdAt: string;
 
+  updatedAt: string;
+
   student: Student;
+
+  school: School;
 
   class: Class;
 
@@ -53,25 +77,13 @@ export interface Enrollment {
 }
 
 // ===================================
-// CREATE REQUEST
+// CREATE ENROLLMENT REQUEST
 // ===================================
 
 export interface CreateEnrollmentRequest {
-  enrollmentType: "NEW" | "NEW_STUDENT" | "TRANSFER";
+  enrollmentType: "NEW_STUDENT" | "TRANSFER" | "PROMOTION";
 
-  studentId?: string;
-
-  firstName?: string;
-
-  lastName?: string;
-
-  gender?: string;
-
-  dateOfBirth?: string;
-
-  parentName?: string;
-
-  parentPhone?: string;
+  studentId: string;
 
   schoolId: string;
 
@@ -86,26 +98,45 @@ export const studentEnrollmentApi = api.injectEndpoints({
   endpoints: (builder) => ({
     // ===================================
     // GET ALL ENROLLMENTS
+    // GET /student-enrollment
     // ===================================
 
     getEnrollments: builder.query<Enrollment[], void>({
-      query: () => "/student-enrollment",
+      query: () => ({
+        url: "/student-enrollment",
+
+        method: "GET",
+      }),
 
       providesTags: ["StudentEnrollment"],
     }),
 
     // ===================================
-    // GET ONE ENROLLMENT
+    // GET ENROLLMENT BY ID
+    // GET /student-enrollment/:id
     // ===================================
 
     getEnrollmentById: builder.query<Enrollment, string>({
-      query: (id) => `/student-enrollment/${id}`,
+      query: (id) => ({
+        url: `/student-enrollment/${id}`,
+
+        method: "GET",
+      }),
 
       providesTags: ["StudentEnrollment"],
     }),
 
     // ===================================
     // CREATE ENROLLMENT
+    // POST /student-enrollment
+    //
+    // Used for:
+    // - transfer
+    // - promotion
+    // - manual enrollment
+    //
+    // New students are created
+    // through registration approval
     // ===================================
 
     createEnrollment: builder.mutation<
@@ -129,6 +160,7 @@ export const studentEnrollmentApi = api.injectEndpoints({
 
     // ===================================
     // DELETE ENROLLMENT
+    // DELETE /student-enrollment/:id
     // ===================================
 
     deleteEnrollment: builder.mutation<
@@ -146,7 +178,13 @@ export const studentEnrollmentApi = api.injectEndpoints({
       invalidatesTags: ["StudentEnrollment"],
     }),
   }),
+
+  overrideExisting: false,
 });
+
+// ===================================
+// HOOKS
+// ===================================
 
 export const {
   useGetEnrollmentsQuery,
@@ -155,6 +193,5 @@ export const {
 
   useCreateEnrollmentMutation,
 
-  useDeleteEnrollmentMutation,
+  useDeleteEnrollmentMutation, 
 } = studentEnrollmentApi;
- 
