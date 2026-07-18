@@ -4,24 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import {
-  Bell,
-  LogOut,
-  Menu,
-  Moon,
-  Search,
-  Settings,
-  Sun,
-  X,
-} from "lucide-react";
+import { Bell, LogOut, Menu, Moon, Settings, Sun } from "lucide-react";
 
 import { useAppDispatch, useAppSelector } from "@/app/redux";
-import {
-  logout,
-  setGlobalSearchTerm,
-  setIsDarkMode,
-  setIsSidebarCollapsed,
-} from "@/app/state";
+import { logout, setIsDarkMode, setIsSidebarCollapsed } from "@/app/state";
 
 const Navbar = () => {
   const dispatch = useAppDispatch();
@@ -32,8 +18,6 @@ const Navbar = () => {
   );
 
   const isDarkMode = useAppSelector((state) => state.global.isDarkMode);
-
-  const search = useAppSelector((state) => state.global.globalSearchTerm ?? "");
 
   const currentUser = useAppSelector((state) => state.global.currentUser);
 
@@ -77,7 +61,7 @@ const Navbar = () => {
     >
       {/* LEFT */}
 
-      <div className="flex items-center gap-4 flex-1">
+      <div className="flex items-center">
         <button
           onClick={() => dispatch(setIsSidebarCollapsed(!isSidebarCollapsed))}
           className="p-3 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-gray-700"
@@ -85,27 +69,6 @@ const Navbar = () => {
         >
           <Menu size={18} />
         </button>
-
-        <div className="relative w-full max-w-md">
-          <Search size={18} className="absolute left-3 top-3 text-gray-400" />
-
-          <input
-            type="search"
-            value={search}
-            placeholder="Search..."
-            onChange={(e) => dispatch(setGlobalSearchTerm(e.target.value))}
-            className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 pl-10 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-
-          {search && (
-            <button
-              onClick={() => dispatch(setGlobalSearchTerm(""))}
-              className="absolute right-3 top-3"
-            >
-              <X size={16} />
-            </button>
-          )}
-        </div>
       </div>
 
       {/* RIGHT */}

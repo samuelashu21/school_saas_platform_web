@@ -19,6 +19,7 @@ import {
   CalendarDays,
   UserPlus,
   CheckCircle,
+  UserCog,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -87,14 +88,20 @@ const Sidebar = () => {
     (state) => state.global.isSidebarCollapsed,
   );
 
+  // ================================
+  // USER ROLES
+  // ================================
+
   const currentUserRoles = useAppSelector(
     (state) => state.global.currentUser?.roles ?? [],
   );
 
   const normalizedRoles = currentUserRoles.map((role) => role.toUpperCase());
+
   const isAdmin =
-    normalizedRoles.includes("SCHOOL_ADMIN") ||
-    normalizedRoles.includes("SUPER_ADMIN");
+    normalizedRoles.includes("SUPER_ADMIN") ||
+    normalizedRoles.includes("SCHOOL_ADMIN");
+
   const isRegistrar = normalizedRoles.includes("REGISTRAR");
 
   const toggleSidebar = () => {
@@ -251,6 +258,10 @@ hover:bg-blue-100
           testId="nav-teacher-subjects"
         />
 
+        {/* ============================
+            REGISTRAR ONLY
+        ============================ */}
+
         {isRegistrar && !isAdmin && (
           <SidebarLink
             href="/student-registration/register"
@@ -261,14 +272,28 @@ hover:bg-blue-100
           />
         )}
 
+        {/* ============================
+            ADMIN ONLY
+        ============================ */}
+
         {isAdmin && (
-          <SidebarLink
-            href="/student-registration/approvals"
-            icon={CheckCircle}
-            label="Student Approval"
-            isCollapsed={isSidebarCollapsed}
-            testId="nav-student-registration-approvals"
-          />
+          <>
+            <SidebarLink
+              href="/student-registration/approvals"
+              icon={CheckCircle}
+              label="Student Approval"
+              isCollapsed={isSidebarCollapsed}
+              testId="nav-student-registration-approvals"
+            />
+
+            <SidebarLink
+              href="/users"
+              icon={UserCog}
+              label="User Management"
+              isCollapsed={isSidebarCollapsed}
+              testId="nav-user-management"
+            />
+          </>
         )}
 
         <SidebarLink
@@ -305,9 +330,9 @@ text-gray-500
         >
           © 2026 SIMS Management
         </p>
-      </div>
+      </div> 
     </div>
   );
-}; 
+};
 
 export default Sidebar;

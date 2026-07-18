@@ -1,129 +1,89 @@
 "use client";
 
-import { useGetUsersQuery } from "@/app/state/api";
+import { useState } from "react";
+
+import { UserPlus } from "lucide-react";
+
 import Header from "@/app/(components)/Header";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import { useMemo } from "react";
+
 import { useAppSelector } from "@/app/redux";
 
-const columns: GridColDef[] = [
-  {
-    field: "id",
-    headerName: "Staff ID",
-    width: 220,
-  },
-  {
-    field: "name",
-    headerName: "Full Name",
-    width: 220,
-  },
-  {
-    field: "email",
-    headerName: "Institutional Email",
-    width: 260,
-  },
-  {
-    field: "role",
-    headerName: "Administrative Role",
-    width: 180,
-    renderCell: (params) => {
-      return (
-        <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-blue-50 text-blue-700 mt-2">
-          {params.value || "UNASSIGNED"}
-        </span>
-      );
-    },
-  },
-  {
-    field: "createdAt",
-    headerName: "Created Date",
-    width: 160,
-    valueGetter: (value) =>
-      value ? new Date(value).toLocaleDateString() : "N/A",
-  },
-];
+import UserTable from "./UserTable";
 
-const FacultyRegistry = () => {
-  const globalSearchTerm = useAppSelector(
-    (state) => state.global.globalSearchTerm ?? "",
+import CreateUserModal from "./CreateUserModal";
+
+const UsersPage = () => {
+  const [createOpen, setCreateOpen] = useState(false);
+
+  const currentUserRoles = useAppSelector(
+    (state) => state.global.currentUser?.roles ?? [],
   );
 
-  const { data: users, isLoading, isError } = useGetUsersQuery();
+  const roles = currentUserRoles.map((role: any) =>
+    typeof role === "string"
+      ? role.toUpperCase()
+      : role.role?.name?.toUpperCase(),
+  );
 
-  const formattedUsers = useMemo(() => {
-    if (!users) return [];
+  const canManage =
+    roles.includes("SUPER_ADMIN") || roles.includes("SCHOOL_ADMIN");
 
-    return users.map((user: any) => ({
-      id: user.id,
-
-      name: user.name,
-
-      email: user.email,
-
-      role: user.roles?.length
-        ? user.roles.map((r: any) => r.role.name).join(", ")
-        : "NO ROLE",
-
-      createdAt: user.createdAt,
-    }));
-  }, [users]);
-
-  const filteredUsers = useMemo(() => {
-    if (!globalSearchTerm) return formattedUsers;
-
-    const search = globalSearchTerm.toLowerCase();
-
-    return formattedUsers.filter(
-      (user) =>
-        user.name.toLowerCase().includes(search) ||
-        user.email.toLowerCase().includes(search) ||
-        user.role.toLowerCase().includes(search),
-    );
-  }, [formattedUsers, globalSearchTerm]);
-
-  if (isLoading) {
-    return <div className="py-4 text-gray-500">Loading directory...</div>;
-  }
-
-  if (isError) {
+  if (!canManage) {
     return (
-      <div className="py-4 text-red-500 font-semibold">
-        Failed loading staff directory.
+      <div
+        className="
+p-6
+text-red-600
+font-semibold
+"
+      >
+        You are not allowed to access User Management.
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col" data-testid="users-page">
-      <Header name="Faculty & Staff Directory" />
-
-      <DataGrid
-        rows={filteredUsers}
-        columns={columns}
-        getRowId={(row) => row.id}
-        checkboxSelection
-        pageSizeOptions={[10, 20, 50]}
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 10,
-              page: 0,
-            },
-          },
-        }}
+    <div
+      className="
+flex
+flex-col
+gap-5
+"
+    >
+      <div
         className="
-          bg-white 
-          shadow-md 
-          rounded-xl 
-          border 
-          border-gray-100 
-          mt-5 
-          !text-gray-700
-        "
-        data-testid="users-grid"
-      />
+flex
+justify-between
+items-center
+"
+      >
+        <Header name="User Management" />
+
+        <button
+          onClick={() => setCreateOpen(true)}
+          className="
+flex
+items-center
+gap-2
+bg-blue-600
+text-white
+px-4
+py-2
+rounded-lg
+hover:bg-blue-700
+transition
+"
+        >
+          <UserPlus size={18} />
+          Create User
+        </button>
+      </div>
+
+      <UserTable />
+
+      <CreateUserModal open={createOpen} onClose={() => setCreateOpen(false)} />
     </div>
   );
 };
 
-export default FacultyRegistry;
+export default UsersPage;
