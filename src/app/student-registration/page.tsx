@@ -8,7 +8,6 @@ import { useAppSelector } from "@/app/redux";
 
 export default function StudentRegistrationRedirectPage() {
 
-
   const router = useRouter();
 
 
@@ -18,39 +17,25 @@ export default function StudentRegistrationRedirectPage() {
     );
 
 
+  const normalizedRoles = useMemo(() => {
 
-  const roles =
-    currentUser?.roles ?? [];
-
-
-
+    const roles =
+      currentUser?.roles ?? [];
 
 
-  const normalizedRoles =
-    useMemo(() => {
+    return roles.map((role: any) => {
+
+      if (typeof role === "string") {
+        return role.toUpperCase();
+      }
 
 
-      return roles.map((role: any) => {
+      return role?.name?.toUpperCase() ?? "";
+
+    });
 
 
-        if (typeof role === "string") {
-
-          return role.toUpperCase();
-
-        }
-
-
-
-        return role?.name?.toUpperCase() ?? "";
-
-      });
-
-
-
-    }, [roles]);
-
-
-
+  }, [currentUser]);
 
 
 
@@ -59,45 +44,21 @@ export default function StudentRegistrationRedirectPage() {
 
 
     if (!currentUser) {
-
       return;
-
     }
 
 
 
-
-    const isSuperAdmin =
-      normalizedRoles.includes(
-        "SUPER_ADMIN"
-      );
+    const hasRole = (role: string) =>
+      normalizedRoles.includes(role);
 
 
 
-    const isSchoolAdmin =
-      normalizedRoles.includes(
-        "SCHOOL_ADMIN"
-      );
-
-
-
-    const isRegistrar =
-      normalizedRoles.includes(
-        "REGISTRAR"
-      );
-
-
-
-
-
-    // =====================================
-    // APPROVAL DASHBOARD
-    // =====================================
-
+    // ADMIN WORKFLOW
 
     if (
-      isSuperAdmin ||
-      isSchoolAdmin
+      hasRole("SUPER_ADMIN") ||
+      hasRole("SCHOOL_ADMIN")
     ) {
 
       router.replace(
@@ -111,13 +72,11 @@ export default function StudentRegistrationRedirectPage() {
 
 
 
+    // REGISTRAR WORKFLOW
 
-    // =====================================
-    // REGISTRATION FORM
-    // =====================================
-
-
-    if (isRegistrar) {
+    if (
+      hasRole("REGISTRAR")
+    ) {
 
       router.replace(
         "/student-registration/register"
@@ -130,26 +89,14 @@ export default function StudentRegistrationRedirectPage() {
 
 
 
-
-    // =====================================
-    // OTHER USERS
-    // =====================================
-
-
-    router.replace(
-      "/dashboard"
-    );
-
+    router.replace("/dashboard");
 
 
   }, [
     currentUser,
     normalizedRoles,
-    router,
+    router
   ]);
-
-
-
 
 
 
@@ -159,11 +106,11 @@ export default function StudentRegistrationRedirectPage() {
 
     <div
       className="
-      flex
-      h-screen
-      items-center
-      justify-center
-      "
+            flex
+            h-screen
+            items-center
+            justify-center
+            "
     >
 
       <div className="text-center">
@@ -171,25 +118,24 @@ export default function StudentRegistrationRedirectPage() {
 
         <div
           className="
-          mx-auto
-          mb-4
-          h-8
-          w-8
-          animate-spin
-          rounded-full
-          border-4
-          border-blue-600
-          border-t-transparent
-          "
+                    mx-auto
+                    mb-4
+                    h-10
+                    w-10
+                    animate-spin
+                    rounded-full
+                    border-4
+                    border-blue-600
+                    border-t-transparent
+                    "
         />
-
 
 
         <p
           className="
-          text-sm
-          text-gray-500
-          "
+                    text-sm
+                    text-gray-500
+                    "
         >
           Loading student registration...
         </p>

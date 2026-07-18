@@ -3,24 +3,8 @@
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-
-import {
-  FileSpreadsheet,
-  FileText,
-  Search,
-} from "lucide-react";
-
-import type {
-  RegistrationStatus,
-  Student,
-} from "@/app/state/module/studentRegistration/studentRegistrationApi";
-
-
-
-// =====================================================
-// STATUS OPTIONS
-// =====================================================
-
+import { FileSpreadsheet, FileText, Search } from "lucide-react";
+import type { RegistrationStatus, Student } from "@/app/state/module/studentRegistration/studentRegistrationApi";
 
 const registrationStatuses: RegistrationStatus[] = [
   "PENDING",
@@ -30,742 +14,144 @@ const registrationStatuses: RegistrationStatus[] = [
   "INACTIVE",
 ];
 
-
-
-// =====================================================
-// PROPS
-// =====================================================
-
-
 interface RegistrationToolbarProps {
-
-
   searchTerm: string;
-
-
   onSearchChange: (value: string) => void;
-
-
-
-  statusFilter:
-  | "ALL"
-  | RegistrationStatus;
-
-
-
-  onStatusFilterChange:
-  (
-    value:
-      | "ALL"
-      | RegistrationStatus
-  ) => void;
-
-
-
+  statusFilter: "ALL" | RegistrationStatus;
+  onStatusFilterChange: (value: "ALL" | RegistrationStatus) => void;
   students: Student[];
-
-
 }
 
-
-
-
-
 const RegistrationToolbar = ({
-
   searchTerm,
-
   onSearchChange,
-
   statusFilter,
-
   onStatusFilterChange,
-
   students,
-
 }: RegistrationToolbarProps) => {
-
-
-
-
-
-  // =====================================================
-  // PARENT NAME
-  // =====================================================
-
-
-  const getParentName = (
-    student: Student
-  ) => {
-
-
-    const account =
-      student.parent?.account;
-
-
-
-    if (account) {
-
-      return `${account.firstName} ${account.lastName}`;
-
-    }
-
-
-    return "-";
-
-  };
-
-
-
-
-
-
-
-  // =====================================================
-  // REGISTRATION INFO
-  // =====================================================
-
-
-  const getRegistration = (
-    student: Student
-  ) => {
-
-
-    const registration =
-      student.registrations?.[0];
-
-
-
-    if (!registration) {
-
-      return {
-
-        grade: "-",
-
-        className: "-",
-
-        period: "-",
-
-      };
-
-    }
-
-
-
+  const getRegistration = (student: Student) => {
+    const registration = student.registrations?.[0];
     return {
-
-
-      grade:
-        registration.class
-          ?.gradeLevel
-          ?.name ?? "-",
-
-
-
-      className:
-        registration.class
-          ?.name ?? "-",
-
-
-
-      period:
-
-        registration.academicPeriod
-
-          ?
-
-          `${registration.academicPeriod.academicYear}
-${registration.academicPeriod.semester}`
-
-          :
-
-          "-",
-
-
+      grade: registration?.class?.gradeLevel?.name ?? "-",
+      className: registration?.class?.name ?? "-",
+      period: registration?.academicPeriod
+        ? `${registration.academicPeriod.academicYear} ${registration.academicPeriod.semester}`
+        : "-",
+      status: registration?.status ?? student.registrationStatus,
+      reason: registration?.rejectionReason ?? "-",
     };
-
-
   };
 
-
-
-
-
-
-
-  // =====================================================
-  // EXCEL EXPORT
-  // =====================================================
-
-
-  const exportToExcel = () => {
-
-
-    const rows =
-      students.map(student => {
-
-
-        const registration =
-          getRegistration(student);
-
-
-
-        return {
-
-
-          StudentName:
-            `${student.firstName} ${student.lastName}`,
-
-
-
-          StudentCode:
-            student.studentCode,
-
-
-
-          Gender:
-            student.gender ?? "-",
-
-
-
-          DateOfBirth:
-
-            student.dateOfBirth
-
-              ?
-
-              new Date(
-                student.dateOfBirth
-              )
-                .toLocaleDateString()
-
-              :
-
-              "-",
-
-
-
-          School:
-            student.school?.name ?? "-",
-
-
-
-          Grade:
-            registration.grade,
-
-
-
-          Section:
-            registration.className,
-
-
-
-          AcademicPeriod:
-            registration.period,
-
-
-
-          Parent:
-            getParentName(student),
-
-
-
-          Status:
-            student.registrationStatus,
-
-
-        };
-
-
-      });
-
-
-
-
-    const worksheet =
-      XLSX.utils.json_to_sheet(rows);
-
-
-
-    const workbook =
-      XLSX.utils.book_new();
-
-
-
-    XLSX.utils.book_append_sheet(
-
-      workbook,
-
-      worksheet,
-
-      "Student Registrations"
-
-    );
-
-
-
-
-    XLSX.writeFile(
-
-      workbook,
-
-      `student-registrations-${Date.now()}.xlsx`
-
-    );
-
-
-
+  const getParentName = (student: Student) => {
+    const parent = student.parent?.account;
+    if (!parent) return "-";
+    return `${parent.firstName} ${parent.lastName}`;
   };
 
-
-
-
-
-
-
-
-  // =====================================================
-  // PDF EXPORT
-  // =====================================================
-
-
-  const exportToPdf = () => {
-
-
-    const pdf =
-      new jsPDF();
-
-
-
-    pdf.setFontSize(14);
-
-
-
-    pdf.text(
-
-      "Student Registrations",
-
-      14,
-
-      18
-
-    );
-
-
-
-
-    autoTable(pdf, {
-
-
-      startY: 24,
-
-
-
-      head: [
-
-        [
-
-          "Name",
-
-          "Code",
-
-          "Gender",
-
-          "DOB",
-
-          "School",
-
-          "Grade",
-
-          "Section",
-
-          "Academic Period",
-
-          "Parent",
-
-          "Status",
-
-        ]
-
-      ],
-
-
-
-
-
-      body:
-
-        students.map(student => {
-
-
-          const registration =
-            getRegistration(student);
-
-
-
-          return [
-
-            `${student.firstName} ${student.lastName}`,
-
-            student.studentCode,
-
-            student.gender ?? "-",
-
-            student.dateOfBirth
-
-              ?
-
-              new Date(
-                student.dateOfBirth
-              )
-                .toLocaleDateString()
-
-              :
-
-              "-",
-
-
-            student.school?.name ?? "-",
-
-
-            registration.grade,
-
-
-            registration.className,
-
-
-            registration.period,
-
-
-            getParentName(student),
-
-
-            student.registrationStatus,
-
-
-          ];
-
-
-        }),
-
-
-
-      styles: {
-
-        fontSize: 8,
-
-      },
-
-
+  const exportExcel = () => {
+    const rows = students.map((student) => {
+      const registration = getRegistration(student);
+      return {
+        Student: `${student.firstName} ${student.lastName}`,
+        Code: student.studentCode,
+        School: student.school?.name ?? "-",
+        Grade: registration.grade,
+        Class: registration.className,
+        Period: registration.period,
+        Parent: getParentName(student),
+        Status: registration.status,
+        Reason: registration.reason,
+      };
     });
 
-
-
-    pdf.save(
-
-      `student-registrations-${Date.now()}.pdf`
-
-    );
-
-
-
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Students");
+    XLSX.writeFile(workbook, "student-registration.xlsx");
   };
 
+  const exportPDF = () => {
+    const pdf = new jsPDF("landscape");
+    pdf.text("Student Registration Report", 14, 15);
 
+    autoTable(pdf, {
+      startY: 22,
+      head: [["Student", "Code", "School", "Grade", "Class", "Period", "Status", "Reason"]],
+      body: students.map((student) => {
+        const registration = getRegistration(student);
+        return [
+          `${student.firstName} ${student.lastName}`,
+          student.studentCode,
+          student.school?.name ?? "-",
+          registration.grade,
+          registration.className,
+          registration.period,
+          registration.status,
+          registration.reason,
+        ];
+      }),
+      styles: { fontSize: 8 },
+    });
 
-
-
-
+    pdf.save("student-registration.pdf");
+  };
 
   return (
-
-    <div
-
-      className="
-mb-6
-flex
-flex-col
-gap-4
-rounded-xl
-bg-white
-p-4
-shadow-md
-lg:flex-row
-lg:items-center
-lg:justify-between
-"
-
-    >
-
-
-
-      {/* SEARCH + FILTER */}
-
-
-      <div
-
-        className="
-flex
-w-full
-flex-col
-gap-3
-md:flex-row
-"
-
-      >
-
-
-
-        <div
-
-          className="
-flex
-w-full
-items-center
-rounded-lg
-border
-border-gray-200
-px-3
-"
-
-        >
-
-
-          <Search
-            className="h-4 w-4 text-gray-400"
-          />
-
-
-
+    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      {/* LEFT SIDE */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        {/* SEARCH */}
+        <div className="flex items-center w-full sm:w-96 rounded-lg border bg-white px-3">
+          <Search size={17} className="text-gray-400" />
           <input
-
-
             value={searchTerm}
-
-
-            onChange={
-              e => onSearchChange(
-                e.target.value
-              )
-            }
-
-
-
-            placeholder="Search students"
-
-
-
-            className="
-w-full
-px-2
-py-2.5
-text-sm
-outline-none
-"
-
+            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder="Search students..."
+            className="w-full bg-transparent px-2 py-2.5 text-sm outline-none"
           />
-
-
-
         </div>
 
-
-
-
-
-
-
-
+        {/* STATUS */}
         <select
-
-
           value={statusFilter}
-
-
-          onChange={e => {
-
-
-            const value =
-              e.target.value;
-
-
-
+          onChange={(e) =>
             onStatusFilterChange(
-
-              value === "ALL"
-
-                ?
-
-                "ALL"
-
-                :
-
-                value as RegistrationStatus
-
-            );
-
-
-
-          }}
-
-
-
-          className="
-rounded-lg
-border
-border-gray-200
-px-3
-py-2.5
-text-sm
-"
-
-        >
-
-
-
-          <option value="ALL">
-
-            All Statuses
-
-          </option>
-
-
-
-
-          {
-            registrationStatuses.map(status => (
-
-
-              <option
-
-                key={status}
-
-                value={status}
-
-              >
-
-                {status}
-
-              </option>
-
-
-            ))
-
+              e.target.value === "ALL" ? "ALL" : (e.target.value as RegistrationStatus)
+            )
           }
-
-
-
+          className="rounded-lg border bg-white px-3 py-2.5 text-sm"
+        >
+          <option value="ALL">All Status</option>
+          {registrationStatuses.map((status) => (
+            <option key={status} value={status}>
+              {status}
+            </option>
+          ))}
         </select>
 
-
-
-
-
+        <span className="text-sm text-gray-500">{students.length} records</span>
       </div>
 
-
-
-
-
-
-
-
-
-      {/* EXPORT BUTTONS */}
-
-
-
-      <div className="flex gap-3">
-
-
-
+      {/* EXPORT */}
+      <div className="flex gap-2">
         <button
-
-          type="button"
-
-          onClick={exportToExcel}
-
-
-          className="
-flex
-items-center
-gap-2
-rounded-lg
-bg-blue-600
-px-4
-py-2
-text-sm
-font-semibold
-text-white
-hover:bg-blue-700
-"
-
+          onClick={exportExcel}
+          className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-green-700"
         >
-
-
-          <FileSpreadsheet className="h-4 w-4" />
-
-
-          Export Excel
-
-
+          <FileSpreadsheet size={16} />
+          Excel
         </button>
 
-
-
-
-
-
-
         <button
-
-          type="button"
-
-          onClick={exportToPdf}
-
-
-          className="
-flex
-items-center
-gap-2
-rounded-lg
-bg-red-600
-px-4
-py-2
-text-sm
-font-semibold
-text-white
-hover:bg-red-700
-"
-
+          onClick={exportPDF}
+          className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-red-700"
         >
-
-
-          <FileText className="h-4 w-4" />
-
-
-          Export PDF
-
-
+          <FileText size={16} />
+          PDF
         </button>
-
-
-
-
-
       </div>
-
-
-
-
-
     </div>
- 
   );
-
-
 };
 
-
-
-export default RegistrationToolbar;
+export default RegistrationToolbar; 

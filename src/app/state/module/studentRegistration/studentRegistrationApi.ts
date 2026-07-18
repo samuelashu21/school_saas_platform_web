@@ -28,28 +28,21 @@ export interface RegistrationGrade {
 
 export interface RegistrationClass {
   id: string;
-
   name: string;
 
   gradeLevel?: {
     id: string;
-
     name: string;
   };
 }
 
 export interface RegistrationAcademicPeriod {
   id: string;
-
   academicYear: string;
-
   semester: string;
-
   startDate: string;
-
   endDate: string;
-
-  isActive: boolean;
+  isActive?: boolean;
 }
 
 // =================================
@@ -58,15 +51,12 @@ export interface RegistrationAcademicPeriod {
 
 export interface Student {
   id: string;
-
   studentCode: string;
 
   firstName: string;
-
   lastName: string;
 
   gender?: string;
-
   dateOfBirth?: string;
 
   registrationStatus: RegistrationStatus;
@@ -75,135 +65,151 @@ export interface Student {
 
   account?: {
     id: string;
-
     firstName: string;
-
     lastName: string;
-
     email: string;
-
     photo?: string;
   };
 
   school?: {
     id: string;
-
     name: string;
   };
 
   parent?: {
     id: string;
-
     phone?: string;
 
     account?: {
       id: string;
-
       firstName: string;
-
       lastName: string;
-
       email: string;
     };
   };
 
   registrations?: {
     id: string;
-
     status: string;
 
     class?: {
       id: string;
-
       name: string;
 
       gradeLevel?: {
         id: string;
-
         name: string;
       };
     };
 
     academicPeriod?: {
       id: string;
-
       academicYear: string;
-
       semester: string;
     };
   }[];
 
   enrollments?: {
     id: string;
-
     enrollmentType: string;
-
     status: string;
 
     class?: {
       id: string;
-
       name: string;
     };
 
     academicPeriod?: {
+      id: string;
       academicYear: string;
-
       semester: string;
     };
   }[];
 
   approvedBy?: {
     id: string;
-
     firstName: string;
-
     lastName: string;
-
     email: string;
   };
 
   approvedAt?: string;
 
   createdAt: string;
-
   updatedAt: string;
 }
 
 // =================================
-// CREATE STUDENT REQUEST
+// REGISTRATION DETAILS
 // =================================
-// studentCode removed because backend generates:
-// STU-0001, STU-0002 ...
+
+export interface StudentRegistration {
+  id: string;
+
+  status: string;
+
+  approvedAt?: string;
+
+  rejectedAt?: string;
+
+  rejectionReason?: string;
+
+  createdAt: string;
+
+  updatedAt: string;
+
+  student: Student;
+
+  school: {
+    id: string;
+    name: string;
+  };
+
+  class: {
+    id: string;
+    name: string;
+
+    gradeLevel?: {
+      id: string;
+      name: string;
+      level?: number;
+    };
+  };
+
+  academicPeriod: {
+    id: string;
+    academicYear: string;
+    semester: string;
+    startDate?: string;
+    endDate?: string;
+  };
+}
+
+// =================================
+// CREATE REQUEST
+// =================================
 
 export interface CreateStudentRequest {
   firstName: string;
-
   lastName: string;
 
   gender?: string;
-
   dateOfBirth?: string;
 
   studentEmail?: string;
 
   schoolId: string;
-
   classId: string;
-
   academicPeriodId: string;
 
   parentFirstName?: string;
-
   parentLastName?: string;
-
   parentEmail?: string;
-
   parentPhone?: string;
 }
 
 // =================================
-// API RESPONSE TYPES
+// RESPONSE
 // =================================
 
 export interface RegistrationResponse {
@@ -211,37 +217,34 @@ export interface RegistrationResponse {
 
   data: {
     student: Student;
-
-    registration: any;
+    registration: StudentRegistration;
   };
 }
 
 // =================================
-// API ENDPOINTS
+// API
 // =================================
 
 export const studentRegistrationApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    // =====================================================
+    // =================================
     // ACTIVE WINDOW
-    // =====================================================
+    // =================================
 
     getActiveRegistrationWindow: builder.query<any, void>({
       query: () => ({
         url: "/student-registration/windows/active",
-
         method: "GET",
       }),
     }),
 
-    // =====================================================
-    // DROPDOWN DATA
-    // =====================================================
+    // =================================
+    // DROPDOWNS
+    // =================================
 
     getRegistrationSchools: builder.query<RegistrationSchool[], void>({
       query: () => ({
         url: "/student-registration/schools",
-
         method: "GET",
       }),
     }),
@@ -249,7 +252,6 @@ export const studentRegistrationApi = api.injectEndpoints({
     getSchoolGrades: builder.query<RegistrationGrade[], string>({
       query: (schoolId) => ({
         url: `/student-registration/schools/${schoolId}/grades`,
-
         method: "GET",
       }),
     }),
@@ -257,7 +259,6 @@ export const studentRegistrationApi = api.injectEndpoints({
     getGradeClasses: builder.query<RegistrationClass[], string>({
       query: (gradeId) => ({
         url: `/student-registration/grades/${gradeId}/classes`,
-
         method: "GET",
       }),
     }),
@@ -268,14 +269,13 @@ export const studentRegistrationApi = api.injectEndpoints({
     >({
       query: () => ({
         url: "/student-registration/academic-periods",
-
         method: "GET",
       }),
     }),
 
-    // =====================================================
+    // =================================
     // REGISTER STUDENT
-    // =====================================================
+    // =================================
 
     registerStudent: builder.mutation<
       RegistrationResponse,
@@ -283,32 +283,58 @@ export const studentRegistrationApi = api.injectEndpoints({
     >({
       query: (body) => ({
         url: "/student-registration/register",
-
         method: "POST",
-
         body,
       }),
 
       invalidatesTags: ["StudentRegistration"],
     }),
 
-    // =====================================================
-    // ALL STUDENTS
-    // =====================================================
+    // =================================
+    // STUDENTS
+    // =================================
 
-    getStudents: builder.query<Student[], void>({
+    // =================================
+// ALL REGISTERED STUDENTS (ADMIN)
+// =================================
+
+getAllRegisteredStudents: builder.query<
+  {
+    data: Student[];
+    total: number;
+  },
+  void
+>({
+  query: () => ({
+    url: "/student-registration/students",
+    method: "GET",
+  }),
+
+  providesTags: ["StudentRegistration"],
+}),
+
+        // =================================
+    // MY REGISTERED STUDENTS (REGISTRAR)
+    // =================================
+
+    getMyRegisteredStudents: builder.query<
+      {
+        data: Student[];
+        total: number;
+      },
+      void
+    >({
       query: () => ({
-        url: "/student-registration/students",
-
+        url: "/student-registration/my-students",
         method: "GET",
       }),
 
       providesTags: ["StudentRegistration"],
     }),
 
-    // =====================================================
-    // PENDING STUDENTS
-    // =====================================================
+    // =================================
+    // PENDING
+    // =================================
 
     getPendingStudents: builder.query<
       {
@@ -319,44 +345,42 @@ export const studentRegistrationApi = api.injectEndpoints({
     >({
       query: () => ({
         url: "/student-registration/pending",
-
         method: "GET",
       }),
 
       providesTags: ["StudentRegistration"],
     }),
 
-    // =====================================================
+    // =================================
     // SINGLE REGISTRATION
-    // =====================================================
+    // =================================
 
-    getRegistrationById: builder.query<Student, string>({
+    getRegistrationById: builder.query<StudentRegistration, string>({
       query: (id) => ({
         url: `/student-registration/${id}`,
-
         method: "GET",
       }),
 
       providesTags: ["StudentRegistration"],
     }),
 
-    // =====================================================
+    
+    // =================================
     // APPROVE
-    // =====================================================
+    // =================================
 
     approveStudent: builder.mutation<any, { id: string }>({
       query: ({ id }) => ({
         url: `/student-registration/${id}/approve`,
-
         method: "PUT",
       }),
 
       invalidatesTags: ["StudentRegistration"],
     }),
 
-    // =====================================================
+    // =================================
     // REJECT
-    // =====================================================
+    // =================================
 
     rejectStudent: builder.mutation<
       any,
@@ -372,13 +396,14 @@ export const studentRegistrationApi = api.injectEndpoints({
           reason,
         },
       }),
+
       invalidatesTags: ["StudentRegistration"],
     }),
   }),
 
   overrideExisting: false,
 });
-
+ 
 // =================================
 // HOOKS
 // =================================
@@ -386,31 +411,26 @@ export const studentRegistrationApi = api.injectEndpoints({
 export const {
   useGetActiveRegistrationWindowQuery,
 
-  // dropdowns
-
   useGetRegistrationSchoolsQuery,
-
   useGetSchoolGradesQuery,
-
   useGetGradeClassesQuery,
-
   useGetRegistrationAcademicPeriodsQuery,
-
-  // registration
 
   useRegisterStudentMutation,
 
-  // students
 
-  useGetStudentsQuery,
+  // ADMIN
+  useGetAllRegisteredStudentsQuery,
+
+
+  // REGISTRAR
+  useGetMyRegisteredStudentsQuery,
+
 
   useGetPendingStudentsQuery,
-
   useGetRegistrationByIdQuery,
 
-  // approval
-
   useApproveStudentMutation,
-
   useRejectStudentMutation,
+
 } = studentRegistrationApi;
