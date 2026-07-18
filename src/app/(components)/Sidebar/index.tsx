@@ -48,34 +48,37 @@ const SidebarLink = ({
     <Link href={href} data-testid={testId}>
       <div
         className={`
-cursor-pointer
+mx-3
+my-1
 flex
 items-center
-${isCollapsed ? "justify-center py-4" : "justify-start px-8 py-4"}
-hover:text-blue-500
-hover:bg-blue-100
-gap-3
-transition-colors
-${isActive ? "bg-blue-100 text-blue-700" : ""}
+rounded-xl
+transition-all
+duration-200
+cursor-pointer
+group
+
+${isCollapsed ? "justify-center p-3" : "px-4 py-3"}
+
+${
+  isActive
+    ? "bg-blue-600 text-white shadow-md"
+    : "text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+}
 `}
       >
         <Icon
           className={`
-w-6
-h-6
-${isActive ? "text-blue-700" : "!text-gray-700"}
-`}
+      w-5
+      h-5
+      shrink-0
+      ${isActive ? "text-white" : "text-gray-500 group-hover:text-blue-600"}
+    `}
         />
 
-        <span
-          className={`
-${isCollapsed ? "hidden" : "block"}
-font-medium
-${isActive ? "text-blue-700" : "text-gray-700"}
-`}
-        >
-          {label}
-        </span>
+        {!isCollapsed && (
+          <span className="ml-3 font-medium text-sm">{label}</span>
+        )}
       </div>
     </Link>
   );
@@ -109,29 +112,20 @@ const Sidebar = () => {
   };
 
   const sidebarClassNames = `
-
 fixed
-
+top-0
+left-0 
 flex
-
 flex-col
-
-${isSidebarCollapsed ? "w-0 md:w-16" : "w-72 md:w-64"}
-
+${isSidebarCollapsed ? "w-0 md:w-20" : "w-72 md:w-72"}
 bg-white
-
+border-r
+border-gray-200
 transition-all
-
 duration-300
-
-overflow-hidden
-
-h-full
-
-shadow-md
-
+h-screen
+shadow-xl
 z-40
-
 `;
 
   return (
@@ -139,42 +133,46 @@ z-40
       {/* LOGO */}
 
       <div
-        className={`
+  className={`
 flex
-gap-3
-justify-between
-md:justify-normal
 items-center
-pt-8
-${isSidebarCollapsed ? "px-5" : "px-8"}
+justify-between
+border-b
+border-gray-200
+px-5
+h-20
 `}
-      >
+>
         <div
-          className="
-w-8
-h-8
-rounded-lg
-bg-blue-600
+  className="
+w-11
+h-11
+rounded-xl
+bg-gradient-to-br
+from-blue-600
+to-indigo-600
 text-white
-grid
-place-items-center
-text-sm
 font-bold
+flex
+items-center
+justify-center
+shadow-lg
 "
-        >
-          SM
-        </div>
+>
+  SM
+</div> 
 
-        <h1
-          className={`
-${isSidebarCollapsed ? "hidden" : "block"}
-font-extrabold
-text-2xl
-text-gray-800
-`}
-        >
-          SIMS EDU
-        </h1>
+        {!isSidebarCollapsed && (
+  <div>
+    <h1 className="font-bold text-xl text-gray-800">
+      SIMS EDU
+    </h1>
+
+    <p className="text-xs text-gray-500">
+      School Management
+    </p>
+  </div>
+)}
 
         <button
           className="
@@ -193,7 +191,19 @@ hover:bg-blue-100
 
       {/* LINKS */}
 
-      <div className="flex-grow mt-8">
+      <div
+        className="
+flex-1
+mt-6
+overflow-y-auto
+overflow-x-hidden
+pb-8 
+
+scrollbar-thin
+scrollbar-thumb-gray-300
+scrollbar-track-transparent
+"
+      >
         <SidebarLink
           href="/dashboard"
           icon={Layout}
@@ -316,21 +326,21 @@ hover:bg-blue-100
       {/* FOOTER */}
 
       <div
-        className={`
+  className={`
+border-t
+border-gray-200
+p-4
 ${isSidebarCollapsed ? "hidden" : "block"}
-mb-10
 `}
-      >
-        <p
-          className="
-text-center
-text-xs
-text-gray-500
-"
-        >
-          © 2026 SIMS Management
-        </p>
-      </div> 
+>
+       <p className="text-center text-xs text-gray-400">
+  © 2026 SIMS EDU
+</p>
+
+<p className="text-center text-[11px] text-gray-400 mt-1">
+  Version 1.0.0
+</p>
+      </div>
     </div>
   );
 };

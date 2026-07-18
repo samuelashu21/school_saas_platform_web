@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Search } from "lucide-react";
 
 import {
   useGetUsersQuery,
@@ -13,9 +13,14 @@ import {
 
 import DeleteUserDialog from "./DeleteUserDialog";
 import UpdateUserModal from "./UpdateUserModal";
- 
+import UserDetailsModal from "./UserDetailsModal";
+
 const UserTable = () => {
   const [updateOpen, setUpdateOpen] = useState(false);
+
+  const [search, setSearch] = useState("");
+
+  const [detailsOpen, setDetailsOpen] = useState(false);
 
   const [deleteOpen, setDeleteOpen] = useState(false);
 
@@ -28,7 +33,7 @@ const UserTable = () => {
   const rows = useMemo(() => {
     if (!users) return [];
 
-    return users.map((user) => ({
+    const mapped = users.map((user) => ({
       id: user.id,
 
       user,
@@ -49,7 +54,19 @@ const UserTable = () => {
 
       createdAt: user.createdAt,
     }));
-  }, [users]);
+
+    if (!search.trim()) return mapped;
+
+    const keyword = search.toLowerCase();
+
+    return mapped.filter(
+      (row) =>
+        row.name.toLowerCase().includes(keyword) ||
+        row.email.toLowerCase().includes(keyword) ||
+        row.role.toLowerCase().includes(keyword) ||
+        row.address.toLowerCase().includes(keyword),
+    );
+  }, [users, search]);
 
   // Toggle account status using the SAME update API
   const toggleStatus = async (user: any) => {
@@ -133,7 +150,10 @@ const UserTable = () => {
       renderCell: (params) => (
         <button
           disabled={updatingStatus}
-          onClick={() => toggleStatus(params.row.user)}
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleStatus(params.row.user);
+          }}
           className={`
           px-3
           py-1
@@ -182,7 +202,9 @@ const UserTable = () => {
         >
           <button
             title="Update user"
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
+
               setSelectedUser(params.row.user);
 
               setUpdateOpen(true);
@@ -197,7 +219,9 @@ const UserTable = () => {
 
           <button
             title="Delete user"
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
+
               setSelectedUser(params.row.user);
 
               setDeleteOpen(true);
@@ -221,6 +245,39 @@ const UserTable = () => {
 
   return (
     <>
+      <div className="mb-4 flex justify-between items-center">
+        <div className="relative w-full max-w-md">
+          <Search
+            size={18}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+          />
+
+          <input
+            type="text"
+            placeholder="Search users..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="
+        w-full
+        rounded-lg
+        border
+        border-gray-300
+        bg-white
+        pl-10
+        pr-4
+        py-2
+        focus:outline-none
+        focus:ring-2
+        focus:ring-blue-500 
+      "
+          />
+        </div>
+
+        <div className="ml-4 text-sm text-gray-500 whitespace-nowrap">
+          {rows.length} user{rows.length !== 1 ? "s" : ""}
+        </div>
+      </div>
+
       <DataGrid
         rows={rows}
         columns={columns}
@@ -228,6 +285,10 @@ const UserTable = () => {
         checkboxSelection
         disableRowSelectionOnClick
         pageSizeOptions={[10, 20, 50]}
+        onRowClick={(params) => {
+          setSelectedUser(params.row.user);
+          setDetailsOpen(true);
+        }}
         initialState={{
           pagination: {
             paginationModel: {
@@ -237,11 +298,11 @@ const UserTable = () => {
           },
         }}
         className="
-        bg-white
-        rounded-xl
-        shadow
-        mt-5
-        "
+    bg-white
+    rounded-xl
+    shadow
+    mt-5
+  "
       />
 
       <UpdateUserModal
@@ -260,6 +321,15 @@ const UserTable = () => {
         onClose={() => {
           setDeleteOpen(false);
 
+          setSelectedUser(null);
+        }}
+      />
+
+      <UserDetailsModal
+        open={detailsOpen}
+        user={selectedUser} 
+        onClose={() => {
+          setDetailsOpen(false);
           setSelectedUser(null);
         }}
       />
