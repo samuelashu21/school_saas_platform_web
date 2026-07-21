@@ -1,19 +1,39 @@
 "use client";
 
 import {
-    Search,
-    X,
-} from "lucide-react";
+    EnrollmentStatus
+} from "@/app/state/module/studentEnrollment/studentEnrollmentApi";
 
 
 
-interface Props {
+interface EnrollmentToolbarProps {
 
-    search: string;
 
-    setSearch: (
-        value: string
-    ) => void;
+    search:string;
+
+
+    setSearch:(
+
+        value:string
+
+    )=>void;
+
+
+
+    status:EnrollmentStatus | "";
+
+
+
+    setStatus:(
+
+        value:EnrollmentStatus | ""
+
+    )=>void;
+
+
+
+    selectedCount:number;
+
 
 }
 
@@ -22,95 +42,192 @@ interface Props {
 
 
 
-
-const EnrollmentToolbar = ({
+export default function EnrollmentToolbar({
 
     search,
 
     setSearch,
 
-}: Props) => {
+    status,
 
+    setStatus,
 
+    selectedCount,
 
-    const clearSearch = () => {
-
-        setSearch("");
-
-    };
-
-
+}:EnrollmentToolbarProps){
 
 
 
     return (
 
-
-        <div
-
-            className="
-            flex
-            items-center
-            gap-2
+        <div className="
             bg-white
-            border
-            border-gray-200
             rounded-xl
-            shadow-sm
-            w-full
-            md:w-[420px]
-            mb-6
-            px-4
-            "
-
-        >
-
-
-
-            <Search
-
-                className="
-                w-5
-                h-5
-                text-gray-400
-                "
-
-            />
+            border
+            p-4
+            flex
+            flex-col
+            gap-4
+            lg:flex-row
+            lg:items-center
+            lg:justify-between
+        ">
 
 
 
 
 
-            <input
-
-
-                value={search}
-
-
-                onChange={(e) =>
-
-                    setSearch(
-                        e.target.value
-                    )
-
-                }
-
-
-                placeholder="
-                Search by student name,
-                code, class...
-                "
-
-
-                className="
+            <div className="
+                flex
+                gap-3
                 flex-1
-                py-3
-                outline-none
-                text-sm
-                text-gray-700
-                "
+            ">
 
-            />
+
+
+
+
+                <input
+
+
+                    value={search}
+
+
+                    onChange={(e)=>
+
+                        setSearch(
+                            e.target.value
+                        )
+
+                    }
+
+
+                    placeholder="
+                        Search student code or name...
+                    "
+
+
+                    className="
+                        w-full
+                        max-w-md
+                        px-4
+                        py-2
+                        border
+                        rounded-lg
+                        outline-none
+                        focus:ring-2
+                        focus:ring-blue-500
+                    "
+
+
+                />
+
+
+
+
+
+
+
+
+                <select
+
+
+                    value={status}
+
+
+                    onChange={(e)=>
+
+                        setStatus(
+
+                            e.target.value as EnrollmentStatus | ""
+
+                        )
+
+                    }
+
+
+                    className="
+                        px-4
+                        py-2
+                        border
+                        rounded-lg
+                        bg-white
+                    "
+
+
+                >
+
+
+
+                    <option value="">
+
+                        All Status
+
+                    </option>
+
+
+
+
+
+                    <option value="ACTIVE">
+
+                        Active
+
+                    </option>
+
+
+
+
+
+                    <option value="COMPLETED">
+
+                        Completed
+
+                    </option>
+
+
+
+
+
+                    <option value="TRANSFERRED">
+
+                        Transferred
+
+                    </option>
+
+
+
+
+
+                    <option value="WITHDRAWN">
+
+                        Withdrawn
+
+                    </option>
+
+
+
+
+
+                    <option value="PROMOTED">
+
+                        Promoted
+
+                    </option>
+
+
+
+
+
+                </select>
+
+
+
+
+
+
+            </div>
+
 
 
 
@@ -121,35 +238,35 @@ const EnrollmentToolbar = ({
 
             {
 
-
-                search &&
-
-
-                <button
-
-                    type="button"
-
-                    onClick={clearSearch}
-
-                    className="
-                    text-gray-400
-                    hover:text-gray-700
-                    "
-
-                >
-
-                    <X
-
-                        size={18}
-
-                    />
+                selectedCount > 0 && (
 
 
-                </button>
+                    <div className="
+                        flex
+                        items-center
+                        text-sm
+                        font-medium
+                        text-gray-700
+                    ">
 
+
+                        {selectedCount}
+
+                        {" "}
+
+                        selected
+
+
+                    </div>
+
+
+                )
 
 
             }
+
+
+
 
 
 
@@ -161,8 +278,4 @@ const EnrollmentToolbar = ({
     );
 
 
-};
-
-
-
-export default EnrollmentToolbar;
+}

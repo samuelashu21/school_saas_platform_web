@@ -1,21 +1,19 @@
 "use client";
 
+
 import {
-    X,
-    UserRound,
-    School,
-    CalendarDays,
-    UserCheck,
-    RotateCcw,
-} from "lucide-react";
+
+  Enrollment
+
+} from "@/app/state/module/studentEnrollment/studentEnrollmentApi";
+
 
 
 import EnrollmentStatusBadge from "../components/EnrollmentStatusBadge";
 
+import EnrollmentHistoryTable from "./EnrollmentHistoryTable";
 
-import type {
-    Enrollment,
-} from "@/app/state/module/studentEnrollment/studentEnrollmentApi";
+
 
 
 
@@ -24,34 +22,10 @@ import type {
 interface Props {
 
 
-    enrollment: Enrollment;
+  enrollment: Enrollment;
 
 
-    onClose: () => void;
-
-
-
-    onTransfer?: (
-        enrollment: Enrollment
-    ) => void;
-
-
-
-    onPromote?: (
-        enrollment: Enrollment
-    ) => void;
-
-
-
-    onWithdraw?: (
-        enrollment: Enrollment
-    ) => void;
-
-
-
-    onReadmit?: (
-        enrollment: Enrollment
-    ) => void;
+  onClose:()=>void;
 
 
 }
@@ -62,815 +36,458 @@ interface Props {
 
 
 
+export default function EnrollmentDetailsModal({
 
-const EnrollmentDetailsModal = ({
+  enrollment,
 
-    enrollment,
+  onClose,
 
-    onClose,
-
-    onTransfer,
-
-    onPromote,
-
-    onWithdraw,
-
-    onReadmit,
-
-}: Props) => {
-
-
-
-    const student =
-        enrollment.student;
-
-
-
-    const parent =
-        student?.parent;
+}:Props){
 
 
 
 
 
-    return (
+  return (
 
 
-        <div
+    <div className="
+      fixed
+      inset-0
+      z-50
+      flex
+      items-center
+      justify-center
+      bg-black/40
+      p-4
+    ">
+
+
+
+      <div className="
+        bg-white
+        rounded-2xl
+        w-full
+        max-w-4xl
+        max-h-[90vh]
+        overflow-y-auto
+        shadow-xl
+      ">
+
+
+
+
+
+        {/* HEADER */}
+
+        <div className="
+          flex
+          justify-between
+          items-center
+          p-6
+          border-b
+        ">
+
+
+
+          <div>
+
+
+            <h2 className="
+              text-xl
+              font-bold
+              text-gray-800
+            ">
+
+
+              Enrollment Details
+
+
+            </h2>
+
+
+
+            <p className="
+              text-sm
+              text-gray-500
+            ">
+
+
+              {enrollment.student.studentCode}
+
+
+            </p>
+
+
+          </div>
+
+
+
+
+
+
+          <button
+
+            onClick={onClose}
 
             className="
-            fixed
-            inset-0
-            bg-black/40
-            flex
-            items-center
-            justify-center
-            z-50
-            p-4
+              text-gray-500
+              hover:text-red-600
+              text-xl
             "
 
-        >
+          >
 
+            ✕
 
 
-            <div
+          </button>
 
-                className="
-                bg-white
-                rounded-2xl
-                shadow-xl
-                w-full
-                max-w-3xl
-                max-h-[90vh]
-                overflow-y-auto
-                p-6
-                "
 
-            >
 
 
+        </div>
 
 
 
-                {/* HEADER */}
 
 
-                <div
 
-                    className="
-                    flex
-                    justify-between
-                    items-center
-                    mb-6
-                    "
 
-                >
 
 
+        {/* STUDENT INFORMATION */}
 
-                    <h2 className="
-                    text-xl
-                    font-bold
-                    text-gray-800
-                    ">
 
-                        Enrollment Details
+        <div className="
+          p-6
+          grid
+          md:grid-cols-2
+          gap-5
+        ">
 
-                    </h2>
 
 
 
+          <div>
 
-                    <button
 
-                        onClick={onClose}
+            <h3 className="
+              font-semibold
+              text-gray-700
+              mb-2
+            ">
 
-                        className="
-                        p-2
-                        rounded-lg
-                        hover:bg-gray-100
-                        "
 
-                    >
+              Student
 
-                        <X size={20} />
 
-                    </button>
+            </h3>
 
 
 
-                </div>
 
+            <p>
 
 
+              Name:
 
+              {" "}
 
 
+              {
 
+                enrollment.student.account?.firstName
 
+              }
 
-                {/* STUDENT INFORMATION */}
 
+              {" "}
 
-                <section
 
-                    className="
-                    border
-                    rounded-xl
-                    p-4
-                    mb-4
-                    "
+              {
 
-                >
+                enrollment.student.account?.lastName
 
+              }
 
 
-                    <h3 className="
-                    font-semibold
-                    flex
-                    gap-2
-                    items-center
-                    mb-4
-                    ">
+            </p>
 
 
-                        <UserRound
-                            className="text-blue-600"
-                        />
 
 
-                        Student Information
+            <p>
 
 
-                    </h3>
+              Code:
 
+              {" "}
 
 
+              {
 
+                enrollment.student.studentCode
 
-                    <div className="
-                    grid
-                    md:grid-cols-2
-                    gap-3
-                    text-sm
-                    ">
+              }
 
 
-                        <p>
+            </p>
 
-                            <strong>Name:</strong>{" "}
 
-                            {student?.firstName || "-"}
 
-                            {" "}
 
-                            {student?.lastName || ""}
 
-                        </p>
+            <p>
 
 
+              Email:
 
-                        <p>
+              {" "}
 
-                            <strong>Student Code:</strong>{" "}
 
-                            {student?.studentCode || "-"}
+              {
 
-                        </p>
+                enrollment.student.account?.email
 
+              }
 
 
+            </p>
 
-                        <p>
 
-                            <strong>Gender:</strong>{" "}
 
-                            {student?.gender || "-"}
+          </div>
 
-                        </p>
 
 
 
 
-                        <p>
 
-                            <strong>Date Of Birth:</strong>{" "}
 
-                            {
 
-                                student?.dateOfBirth
 
-                                    ?
+          <div>
 
-                                    new Date(
-                                        student.dateOfBirth
-                                    )
-                                        .toLocaleDateString()
 
-                                    :
+            <h3 className="
+              font-semibold
+              text-gray-700
+              mb-2
+            ">
 
-                                    "-"
 
-                            }
+              Parent
 
 
-                        </p>
+            </h3>
 
 
-                    </div>
 
 
 
-                </section>
 
+            <p>
 
 
+              {
 
+                enrollment.student.parent?.account?.firstName
 
+              }
 
 
+              {" "}
 
 
-                {/* PARENT */}
+              {
 
+                enrollment.student.parent?.account?.lastName
 
-                <section
+              }
 
-                    className="
-                    border
-                    rounded-xl
-                    p-4
-                    mb-4
-                    "
 
-                >
+            </p>
 
 
 
-                    <h3 className="
-                    font-semibold
-                    flex
-                    gap-2
-                    items-center
-                    mb-3
-                    ">
 
 
-                        <UserCheck
 
-                            className="text-green-600"
+            <p>
 
-                        />
 
+              {
 
-                        Parent Information
+                enrollment.student.parent?.account?.email
 
+              }
 
-                    </h3>
 
+            </p>
 
 
 
 
 
-                    {
+          </div>
 
-                        parent
 
-                            ?
 
 
-                            <div className="
-                        text-sm
-                        space-y-2
-                        ">
 
 
+        </div>
 
-                                <p>
 
-                                    <strong>Name:</strong>{" "}
 
-                                    {parent.account?.firstName}
 
-                                    {" "}
 
-                                    {parent.account?.lastName}
 
-                                </p>
 
 
 
-                                <p>
 
-                                    <strong>Email:</strong>{" "}
+        {/* ENROLLMENT INFORMATION */}
 
-                                    {parent.account?.email || "-"}
 
-                                </p>
 
+        <div className="
+          px-6
+          pb-6
+        ">
 
 
 
-                                <p>
+          <h3 className="
+            font-semibold
+            text-gray-700
+            mb-3
+          ">
 
-                                    <strong>Phone:</strong>{" "}
 
-                                    {parent.phone || "-"}
+            Enrollment
 
-                                </p>
 
+          </h3>
 
 
-                            </div>
 
 
-                            :
 
 
-                            <p className="
-                        text-gray-400
-                        text-sm
-                        ">
+          <div className="
+            grid
+            md:grid-cols-2
+            gap-4
+            bg-gray-50
+            rounded-xl
+            p-4
+          ">
 
-                                No parent assigned
 
-                            </p>
 
 
-                    }
+            <p>
 
 
+              School:
 
-                </section>
+              {" "}
 
 
+              {
 
+                enrollment.school.name
 
+              }
 
 
+            </p>
 
 
 
-                {/* ACADEMIC PLACEMENT */}
 
 
-                <section
+            <p>
 
-                    className="
-                    border
-                    rounded-xl
-                    p-4
-                    mb-4
-                    "
 
-                >
+              Class:
 
+              {" "}
 
 
-                    <h3 className="
-                    font-semibold
-                    flex
-                    gap-2
-                    items-center
-                    mb-3
-                    ">
+              {
 
+                enrollment.class.name
 
+              }
 
-                        <School
 
-                            className="text-purple-600"
+            </p>
 
-                        />
 
 
-                        Academic Placement
 
 
-                    </h3>
+            <p>
 
 
+              Academic Period:
 
+              {" "}
 
 
+              {
 
+                enrollment.academicPeriod.academicYear
 
-                    <div className="
-                    grid
-                    md:grid-cols-2
-                    gap-3
-                    text-sm
-                    ">
+              }
 
 
+            </p>
 
-                        <p>
 
-                            <strong>School:</strong>{" "}
 
-                            {enrollment.school?.name || "-"}
 
-                        </p>
 
 
+            <p>
 
 
-                        <p>
+              Type:
 
-                            <strong>Class:</strong>{" "}
+              {" "}
 
-                            {enrollment.class?.name || "-"}
 
-                        </p>
+              {
 
+                enrollment.enrollmentType
 
+              }
 
 
+            </p>
 
-                        <p>
 
-                            <strong>Grade:</strong>{" "}
 
-                            {enrollment.class?.gradeLevel?.name || "-"}
 
-                        </p>
 
 
 
+            <div>
 
 
-                        <p>
+              Status:
 
-                            <strong>Academic Period:</strong>{" "}
+              {" "}
 
-                            {enrollment.academicPeriod?.academicYear}
 
-                            {" - "}
+              <EnrollmentStatusBadge
 
-                            {enrollment.academicPeriod?.semester}
+                status={enrollment.status}
 
-
-                        </p>
-
-
-
-
-                    </div>
-
-
-
-
-                </section>
-
-
-
-
-
-
-
-
-
-                {/* ENROLLMENT INFORMATION */}
-
-
-                <section
-
-                    className="
-                    border
-                    rounded-xl
-                    p-4
-                    "
-
-                >
-
-
-                    <h3 className="
-                    font-semibold
-                    flex
-                    gap-2
-                    items-center
-                    mb-4
-                    ">
-
-
-
-                        <CalendarDays
-
-                            className="text-orange-600"
-
-                        />
-
-
-
-                        Enrollment Information
-
-
-                    </h3>
-
-
-
-
-
-
-
-                    <div className="
-                    grid
-                    md:grid-cols-2
-                    gap-4
-                    text-sm
-                    ">
-
-
-
-                        <div>
-
-                            <strong>Type</strong>
-
-                            <p className="font-semibold">
-
-                                {enrollment.enrollmentType}
-
-                            </p>
-
-                        </div>
-
-
-
-
-
-                        <div>
-
-                            <strong>Status</strong>
-
-
-                            <div className="mt-1">
-
-                                <EnrollmentStatusBadge
-
-                                    status={
-                                        enrollment.status
-                                    }
-
-                                />
-
-
-                            </div>
-
-
-                        </div>
-
-
-
-
-
-
-                        <div>
-
-
-                            <strong>Enrolled Date</strong>
-
-
-                            <p>
-
-
-                                {
-
-                                    enrollment.enrolledAt
-
-                                        ?
-
-                                        new Date(
-                                            enrollment.enrolledAt
-                                        )
-                                            .toLocaleDateString()
-
-                                        :
-
-                                        "-"
-
-                                }
-
-
-                            </p>
-
-
-                        </div>
-
-
-
-
-
-
-
-                        <div>
-
-
-                            <strong>Created Date</strong>
-
-
-                            <p>
-
-
-                                {
-
-                                    enrollment.createdAt
-
-                                        ?
-
-                                        new Date(
-                                            enrollment.createdAt
-                                        )
-                                            .toLocaleDateString()
-
-                                        :
-
-                                        "-"
-
-                                }
-
-
-                            </p>
-
-
-                        </div>
-
-
-
-
-
-                    </div>
-
-
-
-                </section>
-
-
-
-
-
-
-
-
-
-                {/* ACTIONS */}
-
-
-                <div
-
-                    className="
-                    flex
-                    flex-wrap
-                    gap-3
-                    mt-6
-                    "
-
-                >
-
-
-
-
-                    <button
-
-                        onClick={() =>
-                            onTransfer?.(enrollment)
-                        }
-
-                        className="
-                        flex-1
-                        border
-                        rounded-xl
-                        py-3
-                        "
-
-                    >
-
-                        Transfer
-
-
-                    </button>
-
-
-
-
-
-
-                    <button
-
-                        onClick={() =>
-                            onPromote?.(enrollment)
-                        }
-
-                        className="
-                        flex-1
-                        bg-blue-600
-                        text-white
-                        rounded-xl
-                        py-3
-                        "
-
-                    >
-
-                        Promote
-
-
-                    </button>
-
-
-
-
-
-
-
-                    <button
-
-                        onClick={() =>
-                            onWithdraw?.(enrollment)
-                        }
-
-                        className="
-                        flex-1
-                        bg-red-600
-                        text-white
-                        rounded-xl
-                        py-3
-                        "
-
-                    >
-
-                        Withdraw
-
-
-                    </button>
-
-
-
-
-
-
-
-                    {
-
-                        enrollment.status === "WITHDRAWN"
-
-                        &&
-
-
-                        <button
-
-                            onClick={() =>
-                                onReadmit?.(enrollment)
-                            }
-
-                            className="
-                            flex-1
-                            bg-green-600
-                            text-white
-                            rounded-xl
-                            py-3
-                            flex
-                            justify-center
-                            gap-2
-                            "
-
-                        >
-
-                            <RotateCcw size={18} />
-
-                            Readmit
-
-
-                        </button>
-
-
-                    }
-
-
-
-                </div>
-
-
-
+              />
 
 
 
@@ -878,14 +495,78 @@ const EnrollmentDetailsModal = ({
 
 
 
+
+
+          </div>
+
+
+
         </div>
 
 
-    );
-
-
-};
 
 
 
-export default EnrollmentDetailsModal;
+
+
+
+
+        {/* HISTORY */}
+
+
+        <div className="
+          p-6
+          border-t
+        ">
+
+
+
+          <h3 className="
+            font-semibold
+            text-gray-700
+            mb-4
+          ">
+
+
+            Enrollment History
+
+
+          </h3>
+
+
+
+
+
+
+          <EnrollmentHistoryTable
+
+            enrollment={enrollment}
+
+          />
+
+
+
+
+
+        </div>
+
+
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+    </div>
+
+
+  );
+
+
+} 

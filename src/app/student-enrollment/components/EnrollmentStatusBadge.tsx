@@ -1,72 +1,111 @@
 "use client";
 
 
+
+import {
+
+  EnrollmentStatus
+
+} from "@/app/state/module/studentEnrollment/studentEnrollmentApi";
+
+
+
+
+
+
+
 interface Props {
 
-    status: string;
+
+  status: EnrollmentStatus;
+
 
 }
 
 
 
-const EnrollmentStatusBadge = ({
-    status
-
-}: Props) => {
-
-
-    const colors: Record<string, string> = {
-
-
-        ACTIVE:
-            "bg-green-100 text-green-700",
-
-
-        COMPLETED:
-            "bg-blue-100 text-blue-700",
-
-
-        TRANSFERRED:
-            "bg-yellow-100 text-yellow-700",
-
-
-        WITHDRAWN:
-            "bg-red-100 text-red-700",
-
-
-        PROMOTED:
-            "bg-purple-100 text-purple-700"
-
-
-    };
 
 
 
-    return (
 
-        <span
+export default function EnrollmentStatusBadge({
 
-            className={`
-                px-3
-                py-1
-                rounded-full
-                text-xs
-                font-semibold
-                ${colors[status]
-                ??
-                "bg-gray-100 text-gray-700"
-                }
-            `}
+  status,
 
-        >
-
-            {status}
-
-        </span>
-
-    );
-
-};
+}: Props) {
 
 
-export default EnrollmentStatusBadge;
+
+
+
+
+  const styles = {
+
+
+    ACTIVE:
+      "bg-green-100 text-green-700",
+
+
+    COMPLETED:
+      "bg-blue-100 text-blue-700",
+
+
+    TRANSFERRED:
+      "bg-yellow-100 text-yellow-700",
+
+
+    WITHDRAWN:
+      "bg-red-100 text-red-700",
+
+
+    PROMOTED:
+      "bg-purple-100 text-purple-700",
+
+
+
+  };
+
+
+
+
+
+
+
+  return (
+
+
+    <span
+
+      className={`
+
+        inline-flex
+
+        items-center
+
+        rounded-full
+
+        px-3
+
+        py-1
+
+        text-xs
+
+        font-semibold
+
+        ${styles[status]}
+
+      `}
+
+    >
+
+
+      {status}
+
+
+    </span>
+
+
+  );
+
+
+} 

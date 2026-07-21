@@ -1,105 +1,181 @@
 "use client";
 
 
+import {
+
+  EnrollmentType
+
+} from "@/app/state/module/studentEnrollment/studentEnrollmentApi";
+
+
+
+
+
+
+
 interface Props {
 
-    value: string;
 
-    onChange: (value: string) => void;
+  value: EnrollmentType;
+
+
+  onChange:(
+
+    value:EnrollmentType
+
+  )=>void;
+
 
 }
 
 
 
-const EnrollmentTypeSelector = ({
-    value,
-    onChange
-
-}: Props) => {
-
-
-    const types = [
-
-        "NEW_STUDENT",
-        "TRANSFER",
-        "PROMOTION",
-        "REPEAT",
-        "READMISSION"
-
-    ];
 
 
 
-    return (
 
-        <div>
+export default function EnrollmentTypeSelector({
 
+  value,
 
-            <label className="
-                text-sm
-                text-gray-600
-            ">
+  onChange,
 
-                Enrollment Type
-
-            </label>
+}:Props){
 
 
 
-            <select
-
-                value={value}
-
-                onChange={(e) =>
-                    onChange(e.target.value)
-                }
-
-                className="
-                    w-full
-                    border
-                    rounded-xl
-                    p-3
-                    mt-1
-                "
-
-            >
 
 
-                <option value="">
-                    Select Type
-                </option>
+  return (
 
 
-                {
-                    types.map(type => (
-
-                        <option
-
-                            key={type}
-
-                            value={type}
-
-                        >
-
-                            {
-                                type
-                                    .replaceAll("_", " ")
-                            }
-
-                        </option>
-
-                    ))
-                }
+    <div>
 
 
-            </select>
+      <label className="
+        mb-1
+        block
+        text-sm
+        font-medium
+      ">
 
 
-        </div>
-
-    );
-
-};
+        Enrollment Type
 
 
-export default EnrollmentTypeSelector;
+      </label>
+
+
+
+
+
+
+
+      <select
+
+
+        value={value}
+
+
+        onChange={(e)=>
+
+          onChange(
+
+            e.target.value as EnrollmentType
+
+          )
+
+        }
+
+
+        className="
+          w-full
+          rounded-lg
+          border
+          px-3
+          py-2
+        "
+
+
+      >
+
+
+
+
+        <option value="NEW_STUDENT">
+
+
+          New Student
+
+
+        </option>
+
+
+
+
+
+
+        <option value="PROMOTION">
+
+
+          Promotion
+
+
+        </option>
+
+
+
+
+
+
+        <option value="TRANSFER">
+
+
+          Transfer
+
+
+        </option>
+
+
+
+
+
+
+        <option value="REPEAT">
+
+
+          Repeat
+
+
+        </option>
+
+
+
+
+
+
+        <option value="READMISSION">
+
+
+          Readmission
+
+
+        </option>
+
+
+
+
+
+      </select>
+
+
+
+
+
+    </div>
+
+
+  );
+
+
+}

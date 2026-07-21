@@ -934,72 +934,98 @@ pb-10
 
  
         {
-          (isAdmin || isRegistrar) && (
+  (isAdmin || isRegistrar) && (
+
+    <SidebarSubMenu
+
+      title="Student Enrollment"
+
+      icon={Users}
+
+      open={enrollmentOpen}
+
+      onClick={() => setEnrollmentOpen(!enrollmentOpen)}
+
+      isCollapsed={collapsed}
+
+    >
 
 
-            <SidebarSubMenu
+      {/* Enrollment Dashboard */}
 
-              title="Student Enrollment"
+      <SidebarLink
 
-              icon={Users}
+        href="/student-enrollment/admin"
 
-              open={enrollmentOpen}
+        icon={Users}
 
-              onClick={() => setEnrollmentOpen(!enrollmentOpen)}
+        label="Enrollment Dashboard"
 
-              isCollapsed={collapsed}
+        isCollapsed={false}
 
-            >
+        testId="enrollment-dashboard"
 
-
-              {/* DASHBOARD */}
-
-              <SidebarLink
-
-                href="/student-enrollment/admin"
-
-                icon={Users}
-
-                label="Enrollment Dashboard"
-
-                isCollapsed={false}
-
-                testId="enrollment-dashboard"
-
-              />
-
-
+      />
 
 
 
-              {/* CREATE ENROLLMENT */}
+      {/* Eligible Students */}
 
+      <SidebarLink
 
-              <SidebarLink
+        href="/student-enrollment/create"
 
-                href="/student-enrollment"
+        icon={UserPlus}
 
-                icon={FilePlus}
+        label="Eligible Students"
 
-                label="Create Enrollment"
+        isCollapsed={false}
 
-                isCollapsed={false}
+        testId="eligible-students"
 
-                testId="create-enrollment"
-
-              />
-
-
+      />
 
 
 
-            </SidebarSubMenu>
+      {/* All Enrollments */}
+
+      <SidebarLink
+
+        href="/student-enrollment/admin"
+
+        icon={ClipboardList}
+
+        label="All Enrollments"
+
+        isCollapsed={false}
+
+        testId="all-enrollments"
+
+      />
 
 
-          )
 
-        }
+      {/* Enrollment History */}
 
+      <SidebarLink
+
+        href="/student-enrollment/history"
+
+        icon={CalendarDays}
+
+        label="Enrollment History"
+
+        isCollapsed={false}
+
+        testId="enrollment-history"
+
+      />
+
+
+    </SidebarSubMenu>
+
+  )
+}
 
 
 

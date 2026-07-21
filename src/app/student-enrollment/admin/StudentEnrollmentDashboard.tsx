@@ -1,86 +1,84 @@
 "use client";
 
-
 import {
-  useState
+    useState
 } from "react";
 
 
 import {
-  PlusCircle
-} from "lucide-react";
 
+    Enrollment,
 
-import Header from "@/app/(components)/Header";
+    EnrollmentStatus,
 
+    useGetEnrollmentsQuery,
 
-import {
-  useGetEnrollmentsQuery,
-  useWithdrawStudentMutation
+    useDeleteEnrollmentMutation,
+
+    useWithdrawStudentMutation,
+
+    useTransferStudentMutation,
+
 } from "@/app/state/module/studentEnrollment/studentEnrollmentApi";
 
-
-import type {
-  Enrollment
-} from "@/app/state/module/studentEnrollment/studentEnrollmentApi";
-
-
-
-import StudentEnrollmentTable from "./StudentEnrollmentTable";
 
 
 import EnrollmentToolbar from "./EnrollmentToolbar";
 
-
-import CreateEnrollmentModal from "./CreateEnrollmentModal";
-
+import StudentEnrollmentTable from "./StudentEnrollmentTable";
 
 import EnrollmentDetailsModal from "./EnrollmentDetailsModal";
 
 
 
-import PromoteStudentModal from "./PromoteStudentModal";
 
-import RepeatStudentModal from "./RepeatStudentModal";
 
-import ReadmitStudentModal from "./ReadmitStudentModal";
 
 
 
+export default function StudentEnrollmentDashboard() {
 
 
 
-const StudentEnrollmentDashboard = () => {
+    const [page,setPage] = useState(1);
 
 
+    const pageSize = 20;
 
-  const {
 
-    data,
 
-    isLoading,
+    const [search,setSearch] = useState("");
 
-    isError,
 
-    refetch
 
-  } = useGetEnrollmentsQuery();
+    const [status,setStatus] = useState<
+        EnrollmentStatus | ""
+    >("");
 
 
 
+    const [sortBy,setSortBy] = useState(
+        "createdAt"
+    );
 
-  const enrollments =
-    data?.data ?? [];
 
 
+    const [sortOrder,setSortOrder] =
+    useState<
+        "asc" | "desc"
+    >(
+        "desc"
+    );
 
 
 
 
-  const [
-    withdrawStudent
 
-  ] = useWithdrawStudentMutation();
+    const [
+        selectedEnrollment,
+        setSelectedEnrollment
+    ] =
+    useState<Enrollment | null>(null);
 
 
 
@@ -88,109 +86,29 @@ const StudentEnrollmentDashboard = () => {
 
 
 
-  const [
-    search,
-    setSearch
 
-  ] = useState("");
 
+    const {
 
+        data,
 
+        isLoading,
 
+        isError
 
+    } = useGetEnrollmentsQuery({
 
+        page,
 
-  const [
-    openCreate,
-    setOpenCreate
+        pageSize,
 
-  ] = useState(false);
+        search,
 
+        status,
 
+        sortBy,
 
-
-
-
-
-  const [
-    selectedEnrollment,
-    setSelectedEnrollment
-
-  ] = useState<Enrollment | null>(null);
-
-
-
-
-
-
-  const [
-    promoteEnrollment,
-    setPromoteEnrollment
-
-  ] = useState<Enrollment | null>(null);
-
-
-
-
-
-
-  const [
-    repeatEnrollment,
-    setRepeatEnrollment
-
-  ] = useState<Enrollment | null>(null);
-
-
-
-
-
-
-  const [
-    readmitEnrollment,
-    setReadmitEnrollment
-
-  ] = useState<Enrollment | null>(null);
-
-
-
-
-
-
-
-
-
-  const filteredEnrollments =
-
-    enrollments.filter((item) => {
-
-
-      const student =
-        item.student;
-
-
-
-      const value = `
-
-            ${student?.firstName ?? ""}
-
-            ${student?.lastName ?? ""}
-
-            ${student?.studentCode ?? ""}
-
-            ${item.class?.name ?? ""}
-
-            ${item.enrollmentType}
-
-            ${item.status}
-
-            `.toLowerCase();
-
-
-
-      return value.includes(
-        search.toLowerCase()
-      );
-
+        sortOrder,
 
     });
 
@@ -202,45 +120,331 @@ const StudentEnrollmentDashboard = () => {
 
 
 
-  const handleWithdraw = async (
-    enrollment: Enrollment
-  ) => {
 
-
-    try {
-
-
-      await withdrawStudent(
-        enrollment.id
-      ).unwrap();
-
-
-      alert(
-        "Student withdrawn successfully"
-      );
-
-
-      setSelectedEnrollment(null);
-
-      refetch();
+    const [
+        deleteEnrollment
+    ] =
+    useDeleteEnrollmentMutation();
 
 
 
-    } catch (error) {
 
 
-      console.error(error);
+    const [
+        withdrawStudent
+    ] =
+    useWithdrawStudentMutation();
 
 
-      alert(
-        "Withdrawal failed"
-      );
+
+
+
+    const [
+        transferStudent
+    ] =
+    useTransferStudentMutation();
+
+
+
+
+
+
+
+
+    const enrollments =
+        data?.data ?? [];
+
+
+
+    const pagination =
+        data?.pagination;
+
+
+
+
+
+
+
+
+
+    const handleSearch = (
+
+        value:string
+
+    )=>{
+
+
+        setPage(1);
+
+        setSearch(value);
+
+
+    };
+
+
+
+
+
+
+
+
+
+
+
+    const handleStatus = (
+
+        value:EnrollmentStatus | ""
+
+    )=>{
+
+
+        setPage(1);
+
+        setStatus(value);
+
+
+    };
+
+
+
+
+
+
+
+
+
+    const handleSort = (
+
+        column:string
+
+    )=>{
+
+
+        if(sortBy === column){
+
+
+            setSortOrder(
+
+                previous =>
+
+                previous === "asc"
+
+                ? "desc"
+
+                : "asc"
+
+            );
+
+
+        }
+
+        else{
+
+
+            setSortBy(column);
+
+            setSortOrder("asc");
+
+
+        }
+
+
+    };
+
+
+
+
+
+
+
+
+
+    const handlePromote = (
+
+        enrollment:Enrollment
+
+    )=>{
+
+
+        console.log(
+
+            "Promote",
+
+            enrollment.id
+
+        );
+
+
+    };
+
+
+
+
+
+
+
+
+
+
+
+    const handleTransfer = async (
+
+        enrollment:Enrollment
+
+    )=>{
+
+
+        try{
+
+
+            await transferStudent({
+
+                id:enrollment.id,
+
+
+                body:{
+
+
+                    schoolId:
+                    enrollment.schoolId,
+
+
+                    classId:
+                    enrollment.classId,
+
+
+                    academicPeriodId:
+                    enrollment.academicPeriodId,
+
+
+                },
+
+
+            }).unwrap();
+
+
+
+        }
+
+        catch(error){
+
+
+            console.error(error);
+
+
+        }
+
+
+    };
+
+
+
+
+
+
+
+
+
+    const handleWithdraw = async (
+
+        enrollment:Enrollment
+
+    )=>{
+
+
+        try{
+
+
+            await withdrawStudent(
+
+                enrollment.id
+
+            ).unwrap();
+
+
+
+        }
+
+        catch(error){
+
+
+            console.error(error);
+
+
+        }
+
+
+    };
+
+
+
+
+
+
+
+
+
+
+
+    const handleDelete = async (
+
+        enrollment:Enrollment
+
+    )=>{
+
+
+        try{
+
+
+            await deleteEnrollment(
+
+                enrollment.id
+
+            ).unwrap();
+
+
+
+        }
+
+        catch(error){
+
+
+            console.error(error);
+
+
+        }
+
+
+    };
+
+
+
+
+
+
+
+
+
+
+
+
+    if(isLoading){
+
+
+        return (
+
+            <div className="p-6">
+
+                Loading enrollments...
+
+            </div>
+
+        );
 
 
     }
 
 
-  };
 
 
 
@@ -248,63 +452,38 @@ const StudentEnrollmentDashboard = () => {
 
 
 
+    if(isError){
 
 
-  if (isLoading) {
+        return (
+
+            <div className="
+                p-6
+                text-red-600
+            ">
+
+                Failed loading enrollments.
+
+            </div>
+
+        );
+
+
+    }
+
+
+
+
+
+
+
 
 
     return (
 
-      <div className="
-            py-10
-            text-gray-500
-            ">
 
-        Loading enrollments...
-
-      </div>
-
-    );
-
-  }
-
-
-
-
-
-
-  if (isError) {
-
-
-    return (
-
-      <div className="
-            py-10
-            text-red-500
-            ">
-
-        Failed loading enrollments.
-
-      </div>
-
-    );
-
-  }
-
-
-
-
-
-
-
-
-
-  return (
-
-
-    <div className="
-        w-full
-        pb-10
+        <div className="
+            space-y-5
         ">
 
 
@@ -312,298 +491,276 @@ const StudentEnrollmentDashboard = () => {
 
 
 
-      <div className="
-            flex
-            justify-between
-            items-center
-            mb-6
+
+
+            <EnrollmentToolbar
+
+
+                search={search}
+
+
+                setSearch={handleSearch}
+
+
+                status={status}
+
+
+                setStatus={handleStatus}
+
+
+                selectedCount={0}
+
+
+            />
+
+
+
+
+
+
+
+
+
+            <StudentEnrollmentTable
+
+
+                enrollments={enrollments}
+
+
+                onView={setSelectedEnrollment}
+
+
+                onPromote={handlePromote}
+
+
+                onTransfer={handleTransfer}
+
+
+                onWithdraw={handleWithdraw}
+
+
+                onReadmit={(item)=>{
+
+
+                    console.log(
+
+                        "Readmit",
+
+                        item.id
+
+                    );
+
+
+                }}
+
+
+
+                onDelete={handleDelete}
+
+
+
+                onSort={handleSort}
+
+
+
+                sortBy={sortBy}
+
+
+
+                sortOrder={sortOrder}
+
+
+
+            />
+
+
+
+
+
+
+
+
+
+            <div className="
+                flex
+                items-center
+                justify-between
+                px-2
             ">
 
 
 
-        <Header
-
-          name="
-                    Student Enrollment Management
-                    "
-
-        />
 
 
+                <p className="
+                    text-sm
+                    text-gray-500
+                ">
+
+
+                    Page {pagination?.page ?? 1}
+
+                    {" "}of{" "}
+
+                    {pagination?.totalPages ?? 1}
+
+
+                </p>
 
 
 
 
-        <button
 
 
-          onClick={() => setOpenCreate(true)}
 
 
-          className="
+                <div className="
                     flex
-                    items-center
                     gap-2
-                    px-4
-                    py-2
-                    bg-blue-600
-                    text-white
-                    rounded-xl
-                    hover:bg-blue-700
-                    "
+                ">
 
 
-        >
 
 
-          <PlusCircle size={18} />
 
+                    <button
 
-          New Enrollment
 
+                        disabled={
+                            page === 1
+                        }
 
-        </button>
 
+                        onClick={()=>
+                            setPage(
+                                previous =>
+                                previous - 1
+                            )
+                        }
 
 
-      </div>
+                        className="
+                            px-3
+                            py-2
+                            rounded-lg
+                            border
+                            disabled:opacity-40
+                        "
 
+                    >
 
+                        Previous
 
 
+                    </button>
 
 
 
 
 
-      <EnrollmentToolbar
 
-        search={search}
 
-        setSearch={setSearch}
 
-      />
 
+                    <button
 
 
+                        disabled={
 
+                            page === pagination?.totalPages
 
+                            ||
 
+                            !pagination?.totalPages
 
+                        }
 
 
-      <StudentEnrollmentTable
+                        onClick={()=>
 
 
-        enrollments={
-          filteredEnrollments
-        }
+                            setPage(
 
+                                previous =>
 
-        onView={(item) => {
+                                previous + 1
 
-          setSelectedEnrollment(item);
+                            )
 
-        }}
 
+                        }
 
-      />
 
+                        className="
+                            px-3
+                            py-2
+                            rounded-lg
+                            border
+                            disabled:opacity-40
+                        "
 
 
+                    >
 
+                        Next
 
 
+                    </button>
 
 
 
-      {
-        openCreate &&
 
-        <CreateEnrollmentModal
 
+                </div>
 
-          onClose={() => {
 
-            setOpenCreate(false);
 
-            refetch();
+            </div>
 
-          }}
 
 
-        />
 
-      }
 
 
 
 
 
+            {
 
+                selectedEnrollment && (
 
 
+                    <EnrollmentDetailsModal
 
-      {
-        selectedEnrollment &&
 
+                        enrollment={selectedEnrollment}
 
-        <EnrollmentDetailsModal
 
+                        onClose={()=>
 
-          enrollment={
-            selectedEnrollment
-          }
 
+                            setSelectedEnrollment(null)
 
 
-          onClose={() => {
+                        }
 
-            setSelectedEnrollment(null);
 
-          }}
+                    />
 
 
+                )
 
-          onPromote={(item) => {
+            }
 
-            setPromoteEnrollment(item);
 
-            setSelectedEnrollment(null);
 
-          }}
 
 
 
-          onWithdraw={handleWithdraw}
+        </div>
 
 
+    );
 
-          onTransfer={(item) => {
 
-            alert(
-              "Transfer modal not connected yet"
-            );
-
-          }}
-
-
-
-        />
-
-      }
-
-
-
-
-
-
-
-
-
-      {
-        promoteEnrollment &&
-
-
-        <PromoteStudentModal
-
-
-          enrollment={
-            promoteEnrollment
-          }
-
-
-          onClose={() => {
-
-            setPromoteEnrollment(null);
-
-            refetch();
-
-          }}
-
-
-        />
-
-      }
-
-
-
-
-
-
-
-
-
-      {
-        repeatEnrollment &&
-
-
-        <RepeatStudentModal
-
-
-          enrollment={
-            repeatEnrollment
-          }
-
-
-          onClose={() => {
-
-            setRepeatEnrollment(null);
-
-            refetch();
-
-          }}
-
-
-        />
-
-      }
-
-
-
-
-
-
-
-
-
-      {
-        readmitEnrollment &&
-
-
-        <ReadmitStudentModal
-
-
-          enrollment={
-            readmitEnrollment
-          }
-
-
-          onClose={() => {
-
-            setReadmitEnrollment(null);
-
-            refetch();
-
-          }}
-
-
-        />
-
-      }
-
-
-
-
-
-    </div>
-
-
-  );
-
-
-};
-
-
-
-export default StudentEnrollmentDashboard;
+}

@@ -1,14 +1,29 @@
 "use client";
 
+
 import StudentEnrollmentDashboard from "./StudentEnrollmentDashboard";
 
 
-export default function AdminEnrollmentPage() {
 
-    return (
+export default function AdminEnrollmentPage(){
 
-        <StudentEnrollmentDashboard />
 
-    );
+
+  return (
+
+
+    <div className="
+      p-6
+    ">
+
+
+      <StudentEnrollmentDashboard />
+
+
+    </div>
+
+
+  );
+
 
 }

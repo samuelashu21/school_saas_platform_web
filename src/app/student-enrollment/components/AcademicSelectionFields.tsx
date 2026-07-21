@@ -1,196 +1,322 @@
 "use client";
 
+
+import {
+
+  useState
+
+} from "react";
+
+
+
+import {
+
+  useGetEnrollmentClassesQuery,
+
+} from "@/app/state/module/studentEnrollment/studentEnrollmentApi";
+
+
+
+
+
+
+
 interface Props {
-  form: any;
 
-  updateField: (
-    key: string,
-    value: string
-  ) => void;
 
-  academicPeriods?: any[];
+  classId:string;
 
-  classes?: any[];
+
+  academicPeriodId:string;
+
+
+  onClassChange:(
+
+    value:string
+
+  )=>void;
+
+
+  onAcademicPeriodChange:(
+
+    value:string
+
+  )=>void;
+
+
 }
 
 
-const AcademicSelectionFields = ({
-  form,
-  updateField,
-  academicPeriods = [],
-  classes = [],
 
-}: Props) => {
+
+
+
+
+export default function AcademicSelectionFields({
+
+  classId,
+
+  academicPeriodId,
+
+  onClassChange,
+
+  onAcademicPeriodChange,
+
+}:Props){
+
+
+
+
+
+  const {
+
+    data,
+
+    isLoading,
+
+  } = useGetEnrollmentClassesQuery();
+
+
+
+
+
+
 
 
   return (
 
-    <div className="mt-6">
 
-
-      <h3 className="
-                font-semibold
-                text-gray-700
-                mb-3
-            ">
-        Academic Information
-      </h3>
+    <div className="
+      space-y-4
+    ">
 
 
 
-      <div className="
-                grid
-                md:grid-cols-2
-                gap-4
-            ">
 
 
-        {/* Academic Period */}
-
-        <div>
-
-          <label className="
-                        text-sm
-                        text-gray-600
-                    ">
-            Academic Period
-          </label>
 
 
-          <select
+      <div>
 
-            value={form.academicPeriodId}
 
-            onChange={(e) =>
-              updateField(
-                "academicPeriodId",
-                e.target.value
+        <label className="
+          mb-1
+          block
+          text-sm
+          font-medium
+        ">
+
+
+          Class
+
+
+        </label>
+
+
+
+
+
+
+
+        <select
+
+
+          value={classId}
+
+
+          onChange={(e)=>
+
+            onClassChange(
+
+              e.target.value
+
+            )
+
+          }
+
+
+          className="
+            w-full
+            rounded-lg
+            border
+            px-3
+            py-2
+          "
+
+
+        >
+
+
+
+          <option value="">
+
+
+            Select Class
+
+
+          </option>
+
+
+
+
+
+
+
+          {
+
+            isLoading && (
+
+
+              <option>
+
+
+                Loading...
+
+
+              </option>
+
+
+            )
+
+          }
+
+
+
+
+
+
+
+          {
+
+            data?.data.map(
+
+              (cls)=>(
+
+
+                <option
+
+                  key={cls.id}
+
+                  value={cls.id}
+
+                >
+
+
+
+                  {
+
+                    cls.name
+
+                  }
+
+
+                  {
+
+
+                    cls.gradeLevel &&
+
+                    ` - ${cls.gradeLevel.name}`
+
+
+                  }
+
+
+
+                </option>
+
+
               )
-            }
-
-            className="
-                            w-full
-                            border
-                            rounded-xl
-                            p-3
-                            mt-1
-                        "
-
-          >
-
-            <option value="">
-              Select Academic Period
-            </option>
 
 
-            {
-              academicPeriods.map(
-                (period) => (
-
-                  <option
-                    key={period.id}
-                    value={period.id}
-                  >
-
-                    {period.academicYear}
-                    {" - "}
-                    {period.semester}
-
-                  </option>
-
-                )
-              )
-            }
+            )
 
 
-          </select>
-
-
-        </div>
+          }
 
 
 
 
-
-        {/* Class */}
-
-        <div>
-
-
-          <label className="
-                        text-sm
-                        text-gray-600
-                    ">
-            Class
-          </label>
-
-
-          <select
-
-            value={form.classId}
-
-            onChange={(e) =>
-              updateField(
-                "classId",
-                e.target.value
-              )
-            }
-
-            className="
-                            w-full
-                            border
-                            rounded-xl
-                            p-3
-                            mt-1
-                        "
-
-          >
-
-            <option value="">
-              Select Class
-            </option>
-
-
-            {
-              classes.map(
-                (item) => (
-
-                  <option
-                    key={item.id}
-                    value={item.id}
-                  >
-
-                    {
-                      item.gradeLevel?.name
-                      ??
-                      ""
-                    }
-
-                    {" - "}
-
-                    {item.name}
-
-                  </option>
-
-                )
-              )
-            }
-
-
-          </select>
-
-
-        </div>
+        </select>
 
 
       </div>
 
 
+
+
+
+
+
+
+
+      <div>
+
+
+        <label className="
+          mb-1
+          block
+          text-sm
+          font-medium
+        ">
+
+
+          Academic Period
+
+
+        </label>
+
+
+
+
+
+
+
+        <input
+
+
+          value={academicPeriodId}
+
+
+          onChange={(e)=>
+
+            onAcademicPeriodChange(
+
+              e.target.value
+
+            )
+
+          }
+
+
+          placeholder="
+            Enter academic period ID
+          "
+
+
+          className="
+            w-full
+            rounded-lg
+            border
+            px-3
+            py-2
+          "
+
+
+        />
+
+
+      </div>
+
+
+
+
+
+
+
     </div>
+
 
   );
 
-};
 
-
-export default AcademicSelectionFields;
+}

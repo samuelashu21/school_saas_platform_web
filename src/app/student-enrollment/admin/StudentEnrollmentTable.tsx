@@ -1,81 +1,300 @@
 "use client";
 
 import {
-  Eye,
-  Trash2,
-  UserRound
-} from "lucide-react";
+  useState
+} from "react";
 
 
 import {
-  useDeleteEnrollmentMutation
+  Enrollment
 } from "@/app/state/module/studentEnrollment/studentEnrollmentApi";
 
 
-import type {
-  Enrollment,
-  EnrollmentStatus
-} from "@/app/state/module/studentEnrollment/studentEnrollmentApi";
+import EnrollmentStatusBadge from "../components/EnrollmentStatusBadge";
+
+import EnrollmentActions from "../components/EnrollmentActions";
+
+
 
 
 
 interface Props {
 
+
   enrollments: Enrollment[];
 
-  onView: (
-    enrollment: Enrollment
-  ) => void;
+
+
+  onView:(
+
+    enrollment:Enrollment
+
+  )=>void;
+
+
+
+  onPromote:(
+
+    enrollment:Enrollment
+
+  )=>void;
+
+
+
+  onTransfer:(
+
+    enrollment:Enrollment
+
+  )=>void;
+
+
+
+  onReadmit:(
+
+    enrollment:Enrollment
+
+  )=>void;
+
+
+
+  onWithdraw:(
+
+    enrollment:Enrollment
+
+  )=>void;
+
+
+
+  onDelete:(
+
+    enrollment:Enrollment
+
+  )=>void;
+
+
+
+  onSort:(
+
+    column:string
+
+  )=>void;
+
+
+
+  sortBy:string;
+
+
+
+  sortOrder:
+
+    "asc" | "desc";
+
 
 }
 
 
 
-const StudentEnrollmentTable = ({
+
+
+
+
+export default function StudentEnrollmentTable({
+
   enrollments,
+
   onView,
 
-}: Props) => {
+  onPromote,
+
+  onTransfer,
+
+  onReadmit,
+
+  onWithdraw,
+
+  onDelete,
+
+  onSort,
+
+  sortBy,
+
+  sortOrder,
+
+}:Props){
+
+
+
 
 
   const [
-    deleteEnrollment
 
-  ] = useDeleteEnrollmentMutation();
+    search,
 
+    setSearch
 
-
-
-  const handleDelete = async (
-    id: string
-  ) => {
+  ] = useState("");
 
 
-    const confirmed =
-      window.confirm(
-        "Delete this enrollment?"
+
+
+
+
+  const [
+
+    selected,
+
+    setSelected
+
+  ] = useState<string[]>([]);
+
+
+
+
+
+
+
+
+  const filtered = enrollments.filter(
+
+    (item)=>{
+
+
+      const name =
+
+        `${
+
+          item.student.account?.firstName ?? ""
+
+        }
+
+        ${
+
+          item.student.account?.lastName ?? ""
+
+        }`
+
+        .toLowerCase();
+
+
+
+
+
+      const code =
+
+        item.student.studentCode.toLowerCase();
+
+
+
+
+
+      const value =
+
+        search.toLowerCase();
+
+
+
+
+
+      return (
+
+        name.includes(value)
+
+        ||
+
+        code.includes(value)
+
       );
 
 
-    if (!confirmed)
-      return;
+    }
+
+  );
 
 
 
-    try {
 
 
-      await deleteEnrollment(id).unwrap();
 
 
-    } catch (error) {
 
 
-      console.error(error);
+  const toggleRow = (
+
+    id:string
+
+  )=>{
 
 
-      alert(
-        "Failed deleting enrollment"
+    setSelected(
+
+      previous =>
+
+
+        previous.includes(id)
+
+
+        ?
+
+
+        previous.filter(
+
+          item=>item!==id
+
+        )
+
+
+        :
+
+
+        [
+
+          ...previous,
+
+          id
+
+        ]
+
+    );
+
+
+  };
+
+
+
+
+
+
+
+
+
+
+
+  const toggleAll = ()=>{
+
+
+    if(
+
+      selected.length === filtered.length
+
+    ){
+
+
+      setSelected([]);
+
+
+    }
+
+    else{
+
+
+      setSelected(
+
+        filtered.map(
+
+          item=>item.id
+
+        )
+
       );
 
 
@@ -89,43 +308,6 @@ const StudentEnrollmentTable = ({
 
 
 
-  const statusStyle = (
-    status: EnrollmentStatus
-  ) => {
-
-
-    const styles: Record<
-      EnrollmentStatus,
-      string
-    > = {
-
-
-      ACTIVE:
-        "bg-green-50 text-green-600",
-
-
-      PROMOTED:
-        "bg-blue-50 text-blue-600",
-
-
-      TRANSFERRED:
-        "bg-purple-50 text-purple-600",
-
-
-      WITHDRAWN:
-        "bg-red-50 text-red-600",
-
-
-      COMPLETED:
-        "bg-gray-100 text-gray-600",
-
-    };
-
-
-    return styles[status];
-
-  };
-
 
 
 
@@ -133,106 +315,516 @@ const StudentEnrollmentTable = ({
 
   return (
 
+
     <div className="
-            bg-white
-            rounded-2xl
+      rounded-xl
+      border
+      bg-white
+      overflow-hidden
+    ">
+
+
+
+
+
+      <div className="
+        p-4
+        border-b
+        flex
+        justify-between
+        items-center
+      ">
+
+
+
+
+
+        <input
+
+
+          value={search}
+
+
+          onChange={(e)=>
+
+            setSearch(
+
+              e.target.value
+
+            )
+
+          }
+
+
+          placeholder="Search student..."
+
+
+          className="
+            w-full
+            max-w-md
+            rounded-lg
             border
-            border-gray-100
-            shadow-sm
-            overflow-x-auto
-        ">
+            px-4
+            py-2
+          "
 
 
-      <table className="
-                w-full
-                text-sm
+        />
+
+
+
+
+
+
+
+        {
+
+          selected.length > 0 && (
+
+
+            <span className="
+              text-sm
+              text-blue-600
+              font-medium
             ">
 
 
-        <thead className="
-                    bg-gray-50
-                ">
+              {selected.length} selected
 
 
-          <tr>
+            </span>
 
 
-            <th className="p-4 text-left">
-              Student
-            </th>
+          )
 
 
-            <th className="p-4 text-left">
-              Code
-            </th>
-
-
-            <th className="p-4 text-left">
-              Parent
-            </th>
-
-
-            <th className="p-4 text-left">
-              Class
-            </th>
-
-
-            <th className="p-4 text-left">
-              Academic Period
-            </th>
-
-
-            <th className="p-4 text-left">
-              Type
-            </th>
-
-
-            <th className="p-4 text-left">
-              Status
-            </th>
-
-
-            <th className="p-4 text-center">
-              Actions
-            </th>
-
-
-          </tr>
-
-
-        </thead>
+        }
 
 
 
 
 
-        <tbody>
+
+      </div>
+
+
+
+
+
+
+
+
+
+      <div className="
+        overflow-x-auto
+      ">
+
+
+
+
+
+        <table className="
+          w-full
+          text-sm
+        ">
+
+
+
+
+
+          <thead className="
+            bg-gray-50
+            border-b
+          ">
+
+
+
+            <tr>
+
+
+
+
+              <th className="p-4">
+
+
+                <input
+
+
+                  type="checkbox"
+
+
+                  checked={
+
+                    filtered.length > 0 &&
+
+                    selected.length === filtered.length
+
+                  }
+
+
+                  onChange={toggleAll}
+
+
+                />
+
+
+              </th>
+
+
+
+
+
+
+              <th
+
+                onClick={()=>
+                  onSort("student")
+                }
+
+                className="
+                  p-4
+                  text-left
+                  cursor-pointer
+                "
+
+              >
+
+                Student
+
+              </th>
+
+
+
+
+
+
+              <th className="p-4 text-left">
+
+                School
+
+              </th>
+
+
+
+
+
+
+              <th className="p-4 text-left">
+
+                Class
+
+              </th>
+
+
+
+
+
+
+              <th className="p-4 text-left">
+
+                Academic Period
+
+              </th>
+
+
+
+
+
+
+              <th className="p-4 text-left">
+
+                Status
+
+              </th>
+
+
+
+
+
+
+              <th className="p-4 text-left">
+
+                Actions
+
+              </th>
+
+
+
+
+
+            </tr>
+
+
+
+          </thead>
+
+
+
+
+
+
+
+
+
+          <tbody>
+
+
+
 
 
           {
 
-            enrollments.length === 0 ?
+            filtered.map(
+
+              (enrollment)=>(
 
 
-              (
 
-                <tr>
+                <tr
 
-                  <td
+                  key={enrollment.id}
 
-                    colSpan={8}
+                  className="
+                    border-b
+                    hover:bg-gray-50
+                  "
 
-                    className="
-                                    text-center
-                                    py-8
-                                    text-gray-400
-                                "
+                >
 
-                  >
 
-                    No enrollments found.
+
+
+
+
+                  <td className="p-4">
+
+
+                    <input
+
+
+                      type="checkbox"
+
+
+                      checked={
+
+                        selected.includes(
+
+                          enrollment.id
+
+                        )
+
+                      }
+
+
+                      onChange={()=>
+
+
+                        toggleRow(
+
+                          enrollment.id
+
+                        )
+
+
+                      }
+
+
+                    />
+
 
                   </td>
+
+
+
+
+
+
+
+
+
+                  <td className="p-4">
+
+
+                    <div className="font-medium">
+
+
+                      {
+
+                        enrollment.student.account?.firstName
+
+                      }
+
+                      {" "}
+
+                      {
+
+                        enrollment.student.account?.lastName
+
+                      }
+
+
+                    </div>
+
+
+
+
+
+                    <div className="
+                      text-xs
+                      text-gray-500
+                    ">
+
+
+                      {
+
+                        enrollment.student.studentCode
+
+                      }
+
+
+                    </div>
+
+
+
+                  </td>
+
+
+
+
+
+
+
+
+
+                  <td className="p-4">
+
+
+                    {
+
+                      enrollment.school.name
+
+                    }
+
+
+                  </td>
+
+
+
+
+
+
+
+
+
+                  <td className="p-4">
+
+
+                    {
+
+                      enrollment.class.name
+
+                    }
+
+
+                  </td>
+
+
+
+
+
+
+
+
+
+                  <td className="p-4">
+
+
+                    {
+
+                      enrollment.academicPeriod.academicYear
+
+                    }
+
+
+                    {" - "}
+
+
+                    {
+
+                      enrollment.academicPeriod.semester
+
+                    }
+
+
+                  </td>
+
+
+
+
+
+
+
+
+
+                  <td className="p-4">
+
+
+                    <EnrollmentStatusBadge
+
+
+                      status={enrollment.status}
+
+
+                    />
+
+
+                  </td>
+
+
+
+
+
+
+
+
+
+                  <td className="p-4">
+
+
+                    <EnrollmentActions
+
+
+                      enrollment={enrollment}
+
+
+                      onView={onView}
+
+
+                      onPromote={onPromote}
+
+
+                      onTransfer={onTransfer}
+
+
+                      onReadmit={onReadmit}
+
+
+                      onWithdraw={onWithdraw}
+
+
+                      onDelete={onDelete}
+
+
+                    />
+
+
+                  </td>
+
+
+
+
+
+
 
 
                 </tr>
@@ -240,291 +832,71 @@ const StudentEnrollmentTable = ({
 
               )
 
-
-              :
-
-
-              enrollments.map((item) => {
-
-
-                const student =
-                  item.student;
-
-
-
-                return (
-
-                  <tr
-
-                    key={item.id}
-
-                    className="
-                                    border-t
-                                    hover:bg-gray-50
-                                "
-
-                  >
-
-
-
-
-                    <td className="p-4">
-
-
-                      <div className="
-                                        flex
-                                        items-center
-                                        gap-3
-                                    ">
-
-
-                        <div className="
-                                            w-10
-                                            h-10
-                                            rounded-xl
-                                            bg-blue-50
-                                            flex
-                                            items-center
-                                            justify-center
-                                        ">
-
-
-                          <UserRound
-
-                            className="
-                                                    w-5
-                                                    h-5
-                                                    text-blue-600
-                                                "
-
-                          />
-
-
-                        </div>
-
-
-
-                        <p className="
-                                            font-semibold
-                                            text-gray-800
-                                        ">
-
-
-                          {student.firstName}
-
-                          {" "}
-
-                          {student.lastName}
-
-
-                        </p>
-
-
-                      </div>
-
-
-                    </td>
-
-
-
-
-
-                    <td className="p-4">
-
-                      {student.studentCode}
-
-                    </td>
-
-
-
-
-
-                    <td className="p-4">
-
-                      {
-                        student.parent?.account
-
-                          ?
-
-                          `${student.parent.account.firstName}
-                                        ${student.parent.account.lastName}`
-
-                          :
-
-                          "Not assigned"
-                      }
-
-                    </td>
-
-
-
-
-
-                    <td className="p-4">
-
-                      {item.class?.name || "-"}
-
-                    </td>
-
-
-
-
-
-                    <td className="p-4">
-
-                      {
-                        item.academicPeriod
-
-                          ?
-
-                          `${item.academicPeriod.academicYear}
-                                        -
-                                        ${item.academicPeriod.semester}`
-
-                          :
-
-                          "-"
-                      }
-
-                    </td>
-
-
-
-
-
-                    <td className="p-4">
-
-
-                      <span className="
-                                        px-3
-                                        py-1
-                                        rounded-full
-                                        bg-blue-50
-                                        text-blue-600
-                                        text-xs
-                                        font-semibold
-                                    ">
-
-                        {item.enrollmentType}
-
-                      </span>
-
-
-                    </td>
-
-
-
-
-
-                    <td className="p-4">
-
-
-                      <span
-
-                        className={`
-                                            px-3
-                                            py-1
-                                            rounded-full
-                                            text-xs
-                                            font-semibold
-                                            ${statusStyle(item.status)}
-                                        `}
-
-                      >
-
-                        {item.status}
-
-                      </span>
-
-
-                    </td>
-
-
-
-
-
-                    <td className="p-4">
-
-
-                      <div className="
-                                        flex
-                                        justify-center
-                                        gap-2
-                                    ">
-
-
-                        <button
-
-                          onClick={() =>
-                            onView(item)
-                          }
-
-                          className="
-                                                p-2
-                                                rounded-lg
-                                                text-blue-600
-                                                hover:bg-blue-50
-                                            "
-
-                        >
-
-                          <Eye size={16} />
-
-                        </button>
-
-
-
-
-
-                        <button
-
-                          onClick={() =>
-                            handleDelete(item.id)
-                          }
-
-                          className="
-                                                p-2
-                                                rounded-lg
-                                                text-red-500
-                                                hover:bg-red-50
-                                            "
-
-                        >
-
-                          <Trash2 size={16} />
-
-                        </button>
-
-
-                      </div>
-
-
-                    </td>
-
-
-
-                  </tr>
-
-                );
-
-
-              })
+            )
 
           }
 
 
-        </tbody>
 
 
-      </table>
+
+          </tbody>
+
+
+
+
+
+
+        </table>
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+
+
+
+
+      {
+
+        filtered.length === 0 && (
+
+
+          <div className="
+            p-8
+            text-center
+            text-gray-500
+          ">
+
+
+            No enrollments found.
+
+
+          </div>
+
+
+        )
+
+
+      }
+
+
+
+
+
 
 
     </div>
 
+
   );
 
 
-};
-
-
-export default StudentEnrollmentTable;
+}

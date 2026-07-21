@@ -57,14 +57,23 @@ export interface Account {
   email: string;
 }
 
-export interface Student {
-  id: string;
+ export interface Student {
 
-  studentCode: string;
+  id:string;
 
-  firstName: string;
+  studentCode:string;
 
-  lastName: string;
+
+  firstName:string;
+
+  lastName:string;
+
+
+  schoolId:string;
+
+
+  school?:School;
+
 
   registrationStatus:
     | "PENDING"
@@ -73,13 +82,16 @@ export interface Student {
     | "REJECTED"
     | "INACTIVE";
 
-  account?: Account;
 
-  parent?: {
-    id: string;
+  account?:Account;
 
-    account?: Account;
+
+  parent?:{
+    id:string;
+
+    account?:Account;
   };
+
 }
 
 // ===================================
@@ -146,6 +158,22 @@ export interface EligibleStudentsResponse {
   data: Student[];
 
   total: number;
+}
+
+export interface EnrollmentPagination {
+  page: number;
+
+  pageSize: number;
+
+  total: number;
+
+  totalPages: number;
+}
+
+export interface EnrollmentListResponse {
+  data: Enrollment[];
+
+  pagination: EnrollmentPagination;
 }
 
 // ===================================
@@ -219,17 +247,33 @@ export const studentEnrollmentApi = api.injectEndpoints({
     // ===================================
 
     getEnrollments: builder.query<
+      EnrollmentListResponse,
       {
-        data: Enrollment[];
+        page?: number;
 
-        total: number;
-      },
-      void
+        pageSize?: number;
+
+        search?: string;
+
+        status?: EnrollmentStatus | "";
+
+        schoolId?: string;
+
+        classId?: string;
+
+        academicPeriodId?: string;
+
+        sortBy?: string;
+
+        sortOrder?: "asc" | "desc";
+      }
     >({
-      query: () => ({
+      query: (params) => ({
         url: "/student-enrollment",
 
         method: "GET",
+
+        params,
       }),
 
       providesTags: ["StudentEnrollment"],
@@ -299,7 +343,6 @@ export const studentEnrollmentApi = api.injectEndpoints({
 
       invalidatesTags: ["StudentEnrollment"],
     }),
-
 
     getEnrollmentClasses: builder.query<
       {

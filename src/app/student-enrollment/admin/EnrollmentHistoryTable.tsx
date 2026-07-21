@@ -1,9 +1,12 @@
 "use client";
 
+
 import {
-    CalendarDays,
-    History,
-} from "lucide-react";
+
+  Enrollment
+
+} from "@/app/state/module/studentEnrollment/studentEnrollmentApi";
+
 
 
 import EnrollmentStatusBadge from "../components/EnrollmentStatusBadge";
@@ -12,9 +15,13 @@ import EnrollmentStatusBadge from "../components/EnrollmentStatusBadge";
 
 
 
+
+
 interface Props {
 
-    enrollments: any[];
+
+  enrollment: Enrollment;
+
 
 }
 
@@ -24,171 +31,164 @@ interface Props {
 
 
 
-const EnrollmentHistoryTable = ({
-    enrollments,
+export default function EnrollmentHistoryTable({
 
-}: Props) => {
+  enrollment,
 
+}: Props) {
 
 
-    return (
 
-        <div
 
-            className="
-            bg-white
-            rounded-2xl
-            border
-            border-gray-100
-            shadow-sm
-            overflow-x-auto
-            "
 
-        >
 
+  return (
 
 
-            <table
+    <div className="
+      overflow-x-auto
+      border
+      rounded-xl
+    ">
 
-                className="
-                w-full
-                text-sm
-                "
 
-            >
 
+      <table className="
+        w-full
+        text-sm
+      ">
 
 
 
-                <thead
+        <thead className="
+          bg-gray-50
+          border-b
+        ">
 
-                    className="
-                    bg-gray-50
-                    "
 
-                >
 
-                    <tr>
+          <tr>
 
 
-                        <th className="
-                        p-4
-                        text-left
-                        "
+            <th className="
+              p-3
+              text-left
+            ">
 
-                        >
+              Student
 
-                            <div className="
-                            flex
-                            items-center
-                            gap-2
-                            ">
+            </th>
 
-                                <History size={16} />
 
-                                Academic Period
 
-                            </div>
+            <th className="
+              p-3
+              text-left
+            ">
 
+              School
 
-                        </th>
+            </th>
 
 
 
+            <th className="
+              p-3
+              text-left
+            ">
 
-                        <th className="
-                        p-4
-                        text-left
-                        "
+              Class
 
-                        >
+            </th>
 
-                            Class
 
-                        </th>
 
+            <th className="
+              p-3
+              text-left
+            ">
 
+              Period
 
+            </th>
 
 
-                        <th className="
-                        p-4
-                        text-left
-                        "
 
-                        >
+            <th className="
+              p-3
+              text-left
+            ">
 
-                            Type
+              Type
 
-                        </th>
+            </th>
 
 
 
+            <th className="
+              p-3
+              text-left
+            ">
 
+              Status
 
-                        <th className="
-                        p-4
-                        text-left
-                        "
+            </th>
 
-                        >
 
-                            Status
 
-                        </th>
+            <th className="
+              p-3
+              text-left
+            ">
 
+              Date
 
+            </th>
 
 
 
-                        <th className="
-                        p-4
-                        text-left
-                        "
+          </tr>
 
-                        >
 
-                            Enrolled Date
 
-                        </th>
+        </thead>
 
 
 
 
 
-                        <th className="
-                        p-4
-                        text-left
-                        "
 
-                        >
 
-                            Left Date
+        <tbody>
 
-                        </th>
 
+          <tr className="
+            border-b
+          ">
 
 
 
+            <td className="
+              p-3
+            ">
 
-                        <th className="
-                        p-4
-                        text-left
-                        "
 
-                        >
+              {
 
-                            Remarks
+                enrollment.student.account?.firstName
 
-                        </th>
+              }
 
+              {" "}
 
+              {
 
-                    </tr>
+                enrollment.student.account?.lastName
 
+              }
 
-                </thead>
 
+            </td>
 
 
 
@@ -196,424 +196,177 @@ const EnrollmentHistoryTable = ({
 
 
 
+            <td className="
+              p-3
+            ">
 
-                <tbody>
 
+              {
 
+                enrollment.school.name
 
-                    {
+              }
 
-                        enrollments?.length === 0
 
-                            ?
+            </td>
 
 
-                            (
 
-                                <tr>
 
 
-                                    <td
 
-                                        colSpan={7}
 
-                                        className="
-                                    text-center
-                                    py-8
-                                    text-gray-400
-                                    "
 
-                                    >
+            <td className="
+              p-3
+            ">
 
 
-                                        No enrollment history found.
+              {
 
+                enrollment.class.name
 
-                                    </td>
+              }
 
 
+            </td>
 
-                                </tr>
 
 
-                            )
 
 
 
-                            :
 
 
+            <td className="
+              p-3
+            ">
 
 
+              {
 
-                            enrollments?.map((item) => (
+                enrollment.academicPeriod.academicYear
 
+              }
 
-                                <tr
 
+            </td>
 
-                                    key={item.id}
 
 
-                                    className="
-                                border-t
-                                hover:bg-gray-50
-                                transition
-                                "
 
 
-                                >
 
 
 
+            <td className="
+              p-3
+            ">
 
 
+              {
 
-                                    {/* Academic Period */}
+                enrollment.enrollmentType
 
+              }
 
-                                    <td className="p-4">
 
+            </td>
 
-                                        <div className="
-                                    flex
-                                    items-center
-                                    gap-2
-                                    ">
 
 
-                                            <CalendarDays
 
-                                                size={16}
 
-                                                className="
-                                            text-blue-600
-                                            "
 
-                                            />
 
 
+            <td className="
+              p-3
+            ">
 
-                                            <div>
 
+              <EnrollmentStatusBadge
 
-                                                <p className="
-                                            font-medium
-                                            "
+                status={enrollment.status}
 
-                                                >
+              />
 
-                                                    {
-                                                        item.academicPeriod
-                                                            ?.academicYear
-                                                        ||
-                                                        "-"
-                                                    }
 
+            </td>
 
-                                                </p>
 
 
 
 
-                                                <p className="
-                                            text-xs
-                                            text-gray-500
-                                            "
 
-                                                >
 
-                                                    {
-                                                        item.academicPeriod
-                                                            ?.semester
-                                                        ||
-                                                        "-"
-                                                    }
 
+            <td className="
+              p-3
+            ">
 
-                                                </p>
 
+              {
 
+                new Date(
 
-                                            </div>
+                  enrollment.createdAt
 
+                ).toLocaleDateString()
 
+              }
 
-                                        </div>
 
+            </td>
 
 
-                                    </td>
 
 
 
 
 
+          </tr>
 
 
 
 
-                                    {/* Class */}
 
+        </tbody>
 
-                                    <td className="p-4">
 
 
-                                        <div>
 
 
-                                            <p className="
-                                        font-medium
-                                        "
+      </table>
 
-                                            >
 
-                                                {
-                                                    item.class?.name
-                                                    ||
-                                                    "-"
-                                                }
 
 
-                                            </p>
 
 
 
+      <div className="
+        p-4
+        text-sm
+        text-gray-500
+      ">
 
-                                            <p className="
-                                        text-xs
-                                        text-gray-500
-                                        "
 
-                                            >
+        Full history will be loaded from enrollment history API when implemented.
 
-                                                {
-                                                    item.class
-                                                        ?.gradeLevel
-                                                        ?.name
-                                                    ||
-                                                    "-"
-                                                }
 
 
-                                            </p>
+      </div>
 
 
 
-                                        </div>
 
 
-                                    </td>
 
+    </div>
 
 
+  );
 
 
-
-
-
-
-                                    {/* Type */}
-
-
-                                    <td className="p-4">
-
-
-                                        <span
-
-                                            className="
-                                        px-3
-                                        py-1
-                                        rounded-full
-                                        bg-blue-50
-                                        text-blue-600
-                                        text-xs
-                                        font-semibold
-                                        "
-
-                                        >
-
-
-                                            {
-                                                item.enrollmentType
-                                                    ?.replace(
-                                                        "_",
-                                                        " "
-                                                    )
-                                            }
-
-
-                                        </span>
-
-
-
-                                    </td>
-
-
-
-
-
-
-
-
-
-                                    {/* Status */}
-
-
-                                    <td className="p-4">
-
-
-                                        <EnrollmentStatusBadge
-
-                                            status={
-                                                item.status
-                                            }
-
-                                        />
-
-
-                                    </td>
-
-
-
-
-
-
-
-
-
-                                    {/* Enrolled Date */}
-
-
-                                    <td className="p-4">
-
-
-                                        {
-
-                                            item.enrolledAt
-
-                                                ?
-
-
-                                                new Date(
-                                                    item.enrolledAt
-                                                )
-                                                    .toLocaleDateString()
-
-
-                                                :
-
-                                                "-"
-
-
-                                        }
-
-
-                                    </td>
-
-
-
-
-
-
-
-
-
-                                    {/* Left Date */}
-
-
-                                    <td className="p-4">
-
-
-                                        {
-
-                                            item.leftAt
-
-                                                ?
-
-
-                                                new Date(
-                                                    item.leftAt
-                                                )
-                                                    .toLocaleDateString()
-
-
-                                                :
-
-                                                "-"
-
-
-                                        }
-
-
-                                    </td>
-
-
-
-
-
-
-
-
-
-                                    {/* Remarks */}
-
-
-                                    <td className="p-4">
-
-
-                                        {
-
-                                            item.remarks
-
-                                            ||
-
-                                            "-"
-
-
-                                        }
-
-
-                                    </td>
-
-
-
-
-
-                                </tr>
-
-
-
-                            ))
-
-
-
-                    }
-
-
-
-                </tbody>
-
-
-
-
-
-            </table>
-
-
-
-
-
-        </div>
-
-
-    );
-
-
-};
-
-
-
-
-
-export default EnrollmentHistoryTable;
+}
