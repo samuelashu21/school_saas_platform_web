@@ -1,142 +1,272 @@
 "use client";
 
 import { useState } from "react";
-import { useAppDispatch, useAppSelector } from "@/app/redux";
-import { setIsSidebarCollapsed } from "@/app/state";
-import { usePathname } from "next/navigation";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import {
   Layout,
   LucideIcon,
   Menu,
-  GraduationCap,
+
   Building2,
-  Users,
-  SlidersHorizontal,
   ClipboardList,
   School,
-  UsersRound,
   BookOpen,
+  UsersRound,
   CalendarDays,
+
+  Users,
   UserPlus,
   CheckCircle,
+
+  GraduationCap,
   UserCog,
+  SlidersHorizontal,
+
   ChevronDown,
   ChevronRight,
+
+  UserCheck,
+  ArrowRightLeft,
+  FilePlus,
+
 } from "lucide-react";
 
 
+import {
+  useAppDispatch,
+  useAppSelector,
+} from "@/app/redux";
+
+
+import {
+  setIsSidebarCollapsed,
+} from "@/app/state";
+
+
+
+
+// ======================================
+// Sidebar Link
+// ======================================
+
+
 interface SidebarLinkProps {
+
   href: string;
+
   icon: LucideIcon;
+
   label: string;
+
   isCollapsed: boolean;
+
   testId: string;
+
 }
 
 
+
 const SidebarLink = ({
+
   href,
+
   icon: Icon,
+
   label,
+
   isCollapsed,
+
   testId,
+
 }: SidebarLinkProps) => {
+
 
   const pathname = usePathname();
 
-  const isActive =
-    pathname === href ||
-    (pathname === "/" && href === "/dashboard");
+
+  const active =
+    pathname === href;
+
 
 
   return (
-    <Link href={href} data-testid={testId}>
+
+    <Link
+
+      href={href}
+
+      data-testid={testId}
+
+    >
+
 
       <div
+
         className={`
-        mx-3
-        my-1
-        flex
-        items-center
-        rounded-xl
-        transition-all
-        duration-200
-        cursor-pointer
-        group
 
-        ${isCollapsed 
-          ? "justify-center p-3" 
-          : "px-4 py-3"
-        }
+mx-3
+my-1
+flex
+items-center
+rounded-xl
+cursor-pointer
+transition
+duration-200
+group
 
-        ${
-          isActive
-            ? "bg-blue-600 text-white shadow-md"
-            : "text-gray-700 hover:bg-blue-50 hover:text-blue-600"
-        }
-        `}
+
+${isCollapsed
+
+            ?
+
+            "justify-center p-3"
+
+            :
+
+            "px-4 py-3"
+
+          }
+
+
+${active
+
+            ?
+
+            "bg-blue-600 text-white shadow-md"
+
+            :
+
+            "text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+
+          }
+
+
+`}
+
       >
 
-        <Icon
-          className={`
-          w-5
-          h-5
-          shrink-0
 
-          ${
-            isActive
-              ? "text-white"
-              : "text-gray-500 group-hover:text-blue-600"
-          }
-          `}
+        <Icon
+
+          className={`
+
+w-5
+h-5
+
+
+${active
+
+              ?
+
+              "text-white"
+
+              :
+
+              "text-gray-500 group-hover:text-blue-600"
+
+            }
+
+`}
+
         />
 
 
-        {!isCollapsed && (
-          <span className="ml-3 font-medium text-sm">
-            {label}
-          </span>
-        )}
+
+        {
+
+          !isCollapsed && (
+
+            <span
+
+              className="
+ml-3
+text-sm
+font-medium
+"
+
+            >
+
+              {label}
+
+            </span>
+
+          )
+
+        }
+
+
 
       </div>
 
+
     </Link>
+
+
   );
+
+
 };
 
 
 
+
+
+
+// ======================================
+// Sidebar Sub Menu
+// ======================================
+
+
 interface SidebarSubMenuProps {
-  title:string;
-  icon:LucideIcon;
-  open:boolean;
-  onClick:()=>void;
-  isCollapsed:boolean;
-  children:React.ReactNode;
+
+  title: string;
+
+  icon: LucideIcon;
+
+  open: boolean;
+
+  onClick: () => void;
+
+  isCollapsed: boolean;
+
+  children: React.ReactNode;
+
 }
 
 
 
+
 const SidebarSubMenu = ({
+
   title,
-  icon:Icon,
+
+  icon: Icon,
+
   open,
+
   onClick,
+
   isCollapsed,
+
   children,
-}:SidebarSubMenuProps)=>{
+
+}: SidebarSubMenuProps) => {
 
 
-return (
+  return (
 
-<div>
+    <div>
 
 
-<button
-onClick={onClick}
-className={`
+      <button
+
+        onClick={onClick}
+
+        className={`
+
 mx-3
 my-1
 flex
@@ -144,84 +274,126 @@ w-[calc(100%-1.5rem)]
 items-center
 rounded-xl
 transition
-duration-200
 
-${
-isCollapsed
-?"justify-center p-3"
-:"px-4 py-3"
-}
+
+${isCollapsed
+
+            ?
+
+            "justify-center p-3"
+
+            :
+
+            "px-4 py-3"
+
+          }
+
 
 text-gray-700
 hover:bg-blue-50
 hover:text-blue-600
 
+
 `}
->
+
+      >
 
 
-<Icon className="w-5 h-5 text-gray-500"/>
+        <Icon
+
+          className="
+w-5
+h-5
+text-gray-500
+"
+
+        />
 
 
-{!isCollapsed && (
 
-<>
+        {
 
-<span className="
+          !isCollapsed && (
+
+            <>
+
+
+              <span
+
+                className="
 ml-3
-font-medium
-text-sm
 flex-1
 text-left
-">
+text-sm
+font-medium
+"
 
-{title}
+              >
 
-</span>
+                {title}
 
-
-{open
-?
-<ChevronDown size={16}/>
-:
-<ChevronRight size={16}/>
-}
-
-
-</>
-
-)}
-
-
-</button>
+              </span>
 
 
 
+              {
 
-{
-open && !isCollapsed && (
+                open
 
-<div
-className="
+                  ?
+
+                  <ChevronDown size={16} />
+
+                  :
+
+                  <ChevronRight size={16} />
+
+              }
+
+
+            </>
+
+          )
+
+        }
+
+
+
+      </button>
+
+
+
+
+
+      {
+
+        open && !isCollapsed && (
+
+          <div
+
+            className="
 ml-6
 border-l
 border-gray-200
 pl-2
 "
->
 
-{children}
+          >
 
-</div>
+            {children}
 
-)
-
-}
+          </div>
 
 
-</div>
+        )
 
-);
+      }
+
+
+    </div>
+
+
+  );
 
 
 };
@@ -229,344 +401,793 @@ pl-2
 
 
 
-const Sidebar =()=>{
-
-
-const dispatch = useAppDispatch();
-
-
-const [
-studentRegistrationOpen,
-setStudentRegistrationOpen
-]=useState(false);
-
-
-
-const isSidebarCollapsed =
-useAppSelector(
-state=>state.global.isSidebarCollapsed
-);
-
-
-
-const currentUserRoles =
-useAppSelector(
-state=>state.global.currentUser?.roles ?? []
-);
-
-
-
-const normalizedRoles =
-currentUserRoles.map(role =>
-role.toUpperCase()
-);
-
-
-
-const isAdmin =
-normalizedRoles.includes("SUPER_ADMIN") ||
-normalizedRoles.includes("SCHOOL_ADMIN");
-
-
-
-const isRegistrar =
-normalizedRoles.includes("REGISTRAR");
 
 
 
 
-const toggleSidebar=()=>{
-
-dispatch(
-setIsSidebarCollapsed(
-!isSidebarCollapsed
-)
-);
-
-};
+// ======================================
+// Sidebar Component
+// ======================================
 
 
+const Sidebar = () => {
 
 
-return (
+  const dispatch =
+    useAppDispatch();
 
-<div
-className={`
+
+
+  const collapsed =
+
+    useAppSelector(
+
+      state =>
+        state.global.isSidebarCollapsed
+
+    );
+
+
+
+  const roles =
+
+    useAppSelector(
+
+      state =>
+        state.global.currentUser?.roles ?? []
+
+    )
+
+      .map(
+
+        role =>
+          role.toUpperCase()
+
+      );
+
+
+
+
+  const isAdmin =
+
+    roles.includes("SUPER_ADMIN")
+
+    ||
+
+    roles.includes("SCHOOL_ADMIN");
+
+
+
+
+  const isRegistrar =
+
+    roles.includes("REGISTRAR");
+
+
+
+
+
+  const [
+
+    registrationOpen,
+
+    setRegistrationOpen
+
+  ] = useState(false);
+
+
+
+
+  const [
+
+    enrollmentOpen,
+
+    setEnrollmentOpen
+
+  ] = useState(false);
+
+
+
+
+
+  const [
+
+    teacherSubjectOpen,
+
+    setTeacherSubjectOpen
+
+  ] = useState(false);
+
+
+  const [
+  userManagementOpen,
+  setUserManagementOpen
+] = useState(false);
+
+
+  const toggleSidebar = () => {
+
+
+    dispatch(
+
+      setIsSidebarCollapsed(
+
+        !collapsed
+
+      )
+
+    );
+
+
+  };
+
+
+
+
+
+  return (
+
+
+    <div
+
+
+      className={`
+
 fixed
+
 top-0
+
 left-0
-flex
-flex-col
 
-${
-isSidebarCollapsed
-?"w-0 md:w-20"
-:"w-72"
-}
-
-bg-white
-border-r
-border-gray-200
-transition-all
-duration-300
-h-screen
-shadow-xl
 z-40
 
+flex
+
+flex-col
+
+h-screen
+
+bg-white
+
+border-r
+
+shadow-xl
+
+
+transition-all
+
+duration-300
+
+
+
+${collapsed
+
+          ?
+
+          "w-0 md:w-20"
+
+          :
+
+          "w-72"
+
+        }
+
 `}
->
 
 
-{/* LOGO */}
+    >
 
-<div
-className="
+
+
+
+
+      {/* HEADER */}
+
+
+      <div
+
+        className="
+h-20
 flex
 items-center
 justify-between
-border-b
-border-gray-200
 px-5
-h-20
+border-b
 "
->
 
-<div
-className="
+      >
+
+
+        <div
+
+          className="
 w-11
 h-11
 rounded-xl
-bg-gradient-to-br
-from-blue-600
-to-indigo-600
+bg-blue-600
 text-white
 font-bold
 flex
 items-center
 justify-center
-shadow-lg
 "
->
-SM
-</div>
+
+        >
+
+          SM
+
+        </div>
 
 
 
-{!isSidebarCollapsed && (
 
-<div>
+        {
 
-<h1 className="
+          !collapsed && (
+
+            <div>
+
+              <h1
+
+                className="
 font-bold
 text-xl
-text-gray-800
-">
-SIMS EDU
-</h1>
+"
 
-<p className="text-xs text-gray-500">
-School Management
-</p>
+              >
 
-</div>
+                SIMS EDU
 
-)}
+              </h1>
 
 
+              <p
 
-<button
-className="
+                className="
+text-xs
+text-gray-500
+"
+
+              >
+
+                School Management
+
+              </p>
+
+
+            </div>
+
+          )
+
+        }
+
+
+
+
+        <button
+
+          onClick={toggleSidebar}
+
+          className="
 md:hidden
-px-3
-py-3
-bg-gray-100
+p-3
 rounded-full
+bg-gray-100
 "
-onClick={toggleSidebar}
->
 
-<Menu className="w-4 h-4"/>
+        >
 
-</button>
+          <Menu size={18} />
 
-
-</div>
+        </button>
 
 
+      </div>
 
 
 
-<div
-className="
+
+
+      {/* MENU */}
+
+
+      <div
+
+        className="
 flex-1
-mt-6
 overflow-y-auto
-pb-8
+mt-6
+pb-10
 "
->
 
-
-
-<SidebarLink
-href="/dashboard"
-icon={Layout}
-label="Dashboard"
-isCollapsed={isSidebarCollapsed}
-testId="nav-dashboard"
-/>
+      >
 
 
 
 
+        <SidebarLink
 
-{isAdmin && (
+          href="/dashboard"
 
-<>
+          icon={Layout}
 
-<SidebarLink
-href="/schools"
-icon={Building2}
-label="Schools"
-isCollapsed={isSidebarCollapsed}
-testId="nav-schools"
-/>
+          label="Dashboard"
 
+          isCollapsed={collapsed}
 
-<SidebarLink
-href="/grades"
-icon={ClipboardList}
-label="Grades"
-isCollapsed={isSidebarCollapsed}
-testId="nav-grades"
-/>
+          testId="dashboard"
 
-
-<SidebarLink
-href="/classes"
-icon={School}
-label="Classes"
-isCollapsed={isSidebarCollapsed}
-testId="nav-classes"
-/>
-
-
-<SidebarLink
-href="/subjects"
-icon={BookOpen}
-label="Subjects"
-isCollapsed={isSidebarCollapsed}
-testId="nav-subjects"
-/>
-
-
-<SidebarLink
-href="/teachers"
-icon={UsersRound}
-label="Teachers"
-isCollapsed={isSidebarCollapsed}
-testId="nav-teachers"
-/>
-
-
-<SidebarLink
-href="/academic-periods"
-icon={CalendarDays}
-label="Academic Year / Semester"
-isCollapsed={isSidebarCollapsed}
-testId="nav-academic-periods"
-/>
-
-
-<SidebarLink
-href="/teacher-subjects"
-icon={GraduationCap}
-label="Teacher Subject Assignment"
-isCollapsed={isSidebarCollapsed}
-testId="nav-teacher-subjects"
-/>
-
-
-</>
-
-)}
+        />
 
 
 
 
 
 
-{/* STUDENT REGISTRATION */}
+        {/* ADMIN MODULES */}
 
-{(isRegistrar || isAdmin) && (
+        {
+          isAdmin && (
 
-<SidebarSubMenu
+            <>
 
-title="Student Registration"
 
-icon={UserPlus}
+              <SidebarLink
 
-open={studentRegistrationOpen}
+                href="/schools"
 
-onClick={()=>
-setStudentRegistrationOpen(
-!studentRegistrationOpen
-)
+                icon={Building2}
+
+                label="Schools"
+
+                isCollapsed={collapsed}
+
+                testId="schools"
+
+              />
+
+
+
+              <SidebarLink
+
+                href="/grades"
+
+                icon={ClipboardList}
+
+                label="Grades"
+
+                isCollapsed={collapsed}
+
+                testId="grades"
+
+              />
+
+
+
+              <SidebarLink
+
+                href="/classes"
+
+                icon={School}
+
+                label="Classes"
+
+                isCollapsed={collapsed}
+
+                testId="classes"
+
+              />
+
+
+
+              <SidebarLink
+
+                href="/subjects"
+
+                icon={BookOpen}
+
+                label="Subjects"
+
+                isCollapsed={collapsed}
+
+                testId="subjects"
+
+              />
+
+
+
+              <SidebarLink
+
+                href="/teachers"
+
+                icon={UsersRound}
+
+                label="Teachers"
+
+                isCollapsed={collapsed}
+
+                testId="teachers"
+
+              />
+
+
+
+              <SidebarLink
+
+                href="/academic-periods"
+
+                icon={CalendarDays}
+
+                label="Academic Periods"
+
+                isCollapsed={collapsed}
+
+                testId="academic-periods"
+
+              />
+
+
+
+            </>
+
+          )
+
+        }
+
+
+
+
+        {
+          (isAdmin || isRegistrar) && (
+
+
+            <SidebarSubMenu
+
+              title="Student Registration"
+
+              icon={UserPlus}
+
+              open={registrationOpen}
+
+              onClick={() => setRegistrationOpen(!registrationOpen)}
+
+              isCollapsed={collapsed}
+
+            >
+
+
+              {
+                isRegistrar && (
+
+                  <SidebarLink
+
+                    href="/student-registration/register"
+
+                    icon={UserPlus}
+
+                    label="Register Student"
+
+                    isCollapsed={false}
+
+                    testId="register-student"
+
+                  />
+
+                )
+
+              }
+
+
+
+              {
+                isAdmin && (
+
+                  <SidebarLink
+
+                    href="/student-registration/approvals"
+
+                    icon={CheckCircle}
+
+                    label="Student Approval"
+
+                    isCollapsed={false}
+
+                    testId="student-approval"
+
+                  />
+
+                )
+
+              }
+
+
+
+
+              <SidebarLink
+
+                href="/student-registration/students"
+
+                icon={Users}
+
+                label="Registered Students"
+
+                isCollapsed={false}
+
+                testId="registered-students"
+
+              />
+
+
+
+            </SidebarSubMenu>
+
+
+          )
+
+        }
+
+
+
+
+
+
+
+ 
+        {
+          (isAdmin || isRegistrar) && (
+
+
+            <SidebarSubMenu
+
+              title="Student Enrollment"
+
+              icon={Users}
+
+              open={enrollmentOpen}
+
+              onClick={() => setEnrollmentOpen(!enrollmentOpen)}
+
+              isCollapsed={collapsed}
+
+            >
+
+
+              {/* DASHBOARD */}
+
+              <SidebarLink
+
+                href="/student-enrollment/admin"
+
+                icon={Users}
+
+                label="Enrollment Dashboard"
+
+                isCollapsed={false}
+
+                testId="enrollment-dashboard"
+
+              />
+
+
+
+
+
+              {/* CREATE ENROLLMENT */}
+
+
+              <SidebarLink
+
+                href="/student-enrollment"
+
+                icon={FilePlus}
+
+                label="Create Enrollment"
+
+                isCollapsed={false}
+
+                testId="create-enrollment"
+
+              />
+
+
+
+
+
+            </SidebarSubMenu>
+
+
+          )
+
+        }
+
+
+
+
+
+
+ 
+
+        {
+          isAdmin && (
+
+
+            <SidebarSubMenu
+
+              title="Teacher Subjects"
+
+              icon={GraduationCap}
+
+              open={teacherSubjectOpen}
+
+              onClick={() => setTeacherSubjectOpen(!teacherSubjectOpen)}
+
+              isCollapsed={collapsed}
+
+            >
+
+
+              <SidebarLink
+
+                href="/teacher-subjects"
+
+                icon={UserCheck}
+
+                label="Assign Subject"
+
+                isCollapsed={false}
+
+                testId="assign-subject"
+
+              />
+
+
+
+              <SidebarLink
+
+                href="/teacher-subjects"
+
+                icon={UsersRound}
+
+                label="Assignment Table"
+
+                isCollapsed={false}
+
+                testId="assignment-table"
+
+              />
+
+
+
+              <SidebarLink
+
+                href="/teacher-subjects"
+
+                icon={ArrowRightLeft}
+
+                label="Remove Assignment"
+
+                isCollapsed={false}
+
+                testId="remove-assignment"
+
+              />
+
+
+
+            </SidebarSubMenu>
+
+
+          )
+
+        }
+
+
+
+
+
+
+ 
+ {
+  isAdmin && (
+
+    <SidebarSubMenu
+
+      title="User Management"
+
+      icon={UserCog}
+
+      open={userManagementOpen}
+
+      onClick={() =>
+        setUserManagementOpen(
+          !userManagementOpen
+        )
+      }
+
+      isCollapsed={collapsed}
+
+    >
+
+
+      <SidebarLink
+
+        href="/users/list"
+
+        icon={Users}
+
+        label="All Users"
+
+        isCollapsed={false}
+
+        testId="users-list"
+
+      />
+
+
+
+      <SidebarLink
+
+        href="/users/create"
+
+        icon={UserPlus}
+
+        label="Create User"
+
+        isCollapsed={false}
+
+        testId="create-user"
+
+      />
+
+
+
+      <SidebarLink
+
+        href="/users/roles"
+
+        icon={UserCog}
+
+        label="Manage Roles"
+
+        isCollapsed={false}
+
+        testId="user-roles"
+
+      />
+
+
+    </SidebarSubMenu>
+
+  )
 }
 
-isCollapsed={isSidebarCollapsed}
-
->
-
-
-{/* Registrar only */}
-
-{isRegistrar && !isAdmin && (
-
-<SidebarLink
-href="/student-registration/register"
-icon={UserPlus}
-label="Register Student"
-isCollapsed={false}
-testId="nav-student-registration-register"
-/>
-
-)}
 
 
 
 
-{/* Admin approval */}
-
-{isAdmin && (
-
-<SidebarLink
-href="/student-registration/approvals"
-icon={CheckCircle}
-label="Student Approval"
-isCollapsed={false}
-testId="nav-student-registration-approvals"
-/>
-
-)}
 
 
+ 
 
+        <SidebarLink
 
-{/* BOTH ADMIN AND REGISTRAR */}
+          href="/settings"
 
-<SidebarLink
-href="/student-registration/students"
-icon={Users}
-label="Registered Students"
-isCollapsed={false}
-testId="nav-student-registration-students"
-/>
+          icon={SlidersHorizontal}
+
+          label="Settings"
+
+          isCollapsed={collapsed}
+
+          testId="settings"
+
+        />
 
 
 
-</SidebarSubMenu>
 
-)}
+
+      </div>
 
 
 
@@ -574,87 +1195,35 @@ testId="nav-student-registration-students"
 
 
 
-{isAdmin && (
+ 
+      <div
 
-<>
-
-<SidebarLink
-href="/users"
-icon={UserCog}
-label="User Management"
-isCollapsed={isSidebarCollapsed}
-testId="nav-user-management"
-/>
-
-
-
-<SidebarLink
-href="/student-enrollment"
-icon={Users}
-label="Student Enrollment"
-isCollapsed={isSidebarCollapsed}
-testId="nav-student-enrollment"
-/>
-
-
-</>
-
-)}
-
-
-
-
-
-<SidebarLink
-href="/settings"
-icon={SlidersHorizontal}
-label="Settings"
-isCollapsed={isSidebarCollapsed}
-testId="nav-settings"
-/>
-
-
-
-</div>
-
-
-
-
-
-<div
-className={`
+        className="
 border-t
-border-gray-200
 p-4
+text-center
+text-xs
+text-gray-400
+"
 
-${
-isSidebarCollapsed
-?"hidden"
-:"block"
-}
+      >
 
-`}
->
+        © 2026 SIMS EDU
 
-<p className="text-center text-xs text-gray-400">
-© 2026 SIMS EDU
-</p>
-
-<p className="text-center text-[11px] text-gray-400 mt-1">
-Version 1.0.0
-</p>
-
-
-</div>
+      </div>
 
 
 
-</div>
 
-);
+
+    </div>
+
+
+  );
 
 
 };
+
 
 
 export default Sidebar;

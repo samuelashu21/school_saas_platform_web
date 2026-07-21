@@ -1,37 +1,22 @@
- const EnrollmentClosed=()=>{
+"use client";
 
+const EnrollmentClosed = () => {
+    return (
+        <div className="text-center py-10">
+            <div className="text-5xl mb-4">
+                🔒
+            </div>
 
-return(
+            <h2 className="text-xl font-bold text-gray-800">
+                Enrollment Closed
+            </h2>
 
-<div className="
-p-10
-text-center
-">
-
-<h1 className="
-text-2xl
-font-bold
-text-red-600
-">
-
-Enrollment Closed
-
-</h1>
-
-
-<p className="mt-3">
-
-Student enrollment is currently unavailable.
-
-</p>
-
-
-</div>
-
-);
-
-
+            <p className="text-gray-500 mt-3">
+                Student enrollment is currently unavailable.
+                Please contact the school administration.
+            </p>
+        </div>
+    );
 };
 
-
-export default EnrollmentClosed; 
+export default EnrollmentClosed;

@@ -111,6 +111,15 @@ export interface UpdateUserRequest {
   photo?: File;
 }
 
+export interface AssignRoleRequest {
+  id: string;
+  role: UserRole;
+}
+
+export interface ApiMessageResponse {
+  message: string;
+}
+
 // =====================================================
 // DELETE USER
 // =====================================================
@@ -139,7 +148,7 @@ export const userApi = api.injectEndpoints({
     // GET SINGLE USER
     // =====================================================
 
-    getUser: builder.query<User, string>({
+    getUserById: builder.query<User, string>({
       query: (id) => `/users/${id}`,
 
       providesTags: (_result, _error, id) => [
@@ -240,6 +249,24 @@ export const userApi = api.injectEndpoints({
       ],
     }),
 
+    assignRole: builder.mutation<ApiMessageResponse, AssignRoleRequest>({
+      query: ({ id, role }) => ({
+        url: `/users/${id}/role`,
+        method: "PUT",
+        body: {
+          role,
+        },
+      }),
+
+      invalidatesTags: (_result, _error, arg) => [
+        "Users",
+        {
+          type: "Users",
+          id: arg.id,
+        },
+      ],
+    }),
+
     // =====================================================
     // DELETE USER
     //
@@ -273,11 +300,12 @@ export const userApi = api.injectEndpoints({
 export const {
   useGetUsersQuery,
 
-  useGetUserQuery,
+  useGetUserByIdQuery,
 
   useCreateUserMutation,
 
-  useUpdateUserMutation, 
+  useUpdateUserMutation,
+  useAssignRoleMutation,
 
   useDeleteUserMutation,
 } = userApi;

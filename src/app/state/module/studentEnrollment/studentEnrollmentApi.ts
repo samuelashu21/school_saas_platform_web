@@ -1,30 +1,35 @@
 import { api } from "../../api";
 
 // ===================================
-// TYPES
+// ENUM TYPES
+// ===================================
+
+export type EnrollmentType =
+  | "NEW_STUDENT"
+  | "PROMOTION"
+  | "TRANSFER"
+  | "REPEAT"
+  | "READMISSION";
+
+export type EnrollmentStatus =
+  | "ACTIVE"
+  | "COMPLETED"
+  | "TRANSFERRED"
+  | "WITHDRAWN"
+  | "PROMOTED";
+
+// ===================================
+// BASIC TYPES
 // ===================================
 
 export interface Class {
   id: string;
 
   name: string;
-}
 
-export interface Student {
-  id: string;
-
-  studentCode: string;
-
-  firstName: string;
-
-  lastName: string;
-
-  account?: {
-    firstName: string;
-
-    lastName: string;
-
-    email: string;
+  gradeLevel?: {
+    id: string;
+    name: string;
   };
 }
 
@@ -42,6 +47,45 @@ export interface AcademicPeriod {
   semester: string;
 }
 
+export interface Account {
+  id: string;
+
+  firstName: string;
+
+  lastName: string;
+
+  email: string;
+}
+
+export interface Student {
+  id: string;
+
+  studentCode: string;
+
+  firstName: string;
+
+  lastName: string;
+
+  registrationStatus:
+    | "PENDING"
+    | "APPROVED"
+    | "ACTIVE"
+    | "REJECTED"
+    | "INACTIVE";
+
+  account?: Account;
+
+  parent?: {
+    id: string;
+
+    account?: Account;
+  };
+}
+
+// ===================================
+// ENROLLMENT
+// ===================================
+
 export interface Enrollment {
   id: string;
 
@@ -53,15 +97,17 @@ export interface Enrollment {
 
   academicPeriodId: string;
 
-  enrollmentType: "NEW_STUDENT" | "TRANSFER" | "PROMOTION";
+  enrollmentType: EnrollmentType;
 
-  status: "ACTIVE" | "COMPLETED" | "TRANSFERRED" | "WITHDRAWN" | "PROMOTED";
+  status: EnrollmentStatus;
 
   enrolledAt: string;
 
   leftAt?: string;
 
-  promotionNote?: string;
+  isCurrent: boolean;
+
+  remarks?: string;
 
   createdAt: string;
 
@@ -74,20 +120,78 @@ export interface Enrollment {
   class: Class;
 
   academicPeriod: AcademicPeriod;
+
+  enrolledBy?: Account;
+}
+
+export interface EnrollmentClass {
+  id: string;
+
+  name: string;
+
+  gradeLevel?: {
+    id: string;
+
+    name: string;
+
+    level: number;
+  };
 }
 
 // ===================================
-// CREATE ENROLLMENT REQUEST
+// ELIGIBLE STUDENTS RESPONSE
+// ===================================
+
+export interface EligibleStudentsResponse {
+  data: Student[];
+
+  total: number;
+}
+
+// ===================================
+// CREATE REQUEST
 // ===================================
 
 export interface CreateEnrollmentRequest {
-  enrollmentType: "NEW_STUDENT" | "TRANSFER" | "PROMOTION";
-
   studentId: string;
 
   schoolId: string;
 
   classId: string;
+
+  academicPeriodId: string;
+
+  enrollmentType: EnrollmentType;
+}
+
+// ===================================
+// PROMOTION REQUEST
+// ===================================
+
+export interface PromotionRequest {
+  classId: string;
+
+  academicPeriodId: string;
+}
+
+// ===================================
+// TRANSFER REQUEST
+// ===================================
+
+export interface TransferRequest {
+  schoolId: string;
+
+  classId: string;
+
+  academicPeriodId: string;
+}
+
+// ===================================
+// READMISSION REQUEST
+// ===================================
+
+export interface ReadmissionRequest {
+  academicPeriodId: string;
 }
 
 // ===================================
@@ -97,11 +201,31 @@ export interface CreateEnrollmentRequest {
 export const studentEnrollmentApi = api.injectEndpoints({
   endpoints: (builder) => ({
     // ===================================
-    // GET ALL ENROLLMENTS
-    // GET /student-enrollment
+    // GET ELIGIBLE STUDENTS
     // ===================================
 
-    getEnrollments: builder.query<Enrollment[], void>({
+    getEligibleStudents: builder.query<EligibleStudentsResponse, void>({
+      query: () => ({
+        url: "/student-enrollment/eligible-students",
+
+        method: "GET",
+      }),
+
+      providesTags: ["StudentEnrollment"],
+    }),
+
+    // ===================================
+    // GET ALL ENROLLMENTS
+    // ===================================
+
+    getEnrollments: builder.query<
+      {
+        data: Enrollment[];
+
+        total: number;
+      },
+      void
+    >({
       query: () => ({
         url: "/student-enrollment",
 
@@ -112,8 +236,7 @@ export const studentEnrollmentApi = api.injectEndpoints({
     }),
 
     // ===================================
-    // GET ENROLLMENT BY ID
-    // GET /student-enrollment/:id
+    // GET BY ID
     // ===================================
 
     getEnrollmentById: builder.query<Enrollment, string>({
@@ -128,22 +251,13 @@ export const studentEnrollmentApi = api.injectEndpoints({
 
     // ===================================
     // CREATE ENROLLMENT
-    // POST /student-enrollment
-    //
-    // Used for:
-    // - transfer
-    // - promotion
-    // - manual enrollment
-    //
-    // New students are created
-    // through registration approval
     // ===================================
 
     createEnrollment: builder.mutation<
       {
         message: string;
 
-        enrollment: Enrollment;
+        data: Enrollment;
       },
       CreateEnrollmentRequest
     >({
@@ -158,9 +272,152 @@ export const studentEnrollmentApi = api.injectEndpoints({
       invalidatesTags: ["StudentEnrollment"],
     }),
 
+    updateEnrollmentStatus: builder.mutation<
+      {
+        message: string;
+        enrollment: Enrollment;
+      },
+      {
+        id: string;
+        status:
+          | "ACTIVE"
+          | "COMPLETED"
+          | "TRANSFERRED"
+          | "WITHDRAWN"
+          | "PROMOTED";
+
+        remarks?: string;
+      }
+    >({
+      query: (body) => ({
+        url: `/student-enrollment/${body.id}/status`,
+
+        method: "PATCH",
+
+        body,
+      }),
+
+      invalidatesTags: ["StudentEnrollment"],
+    }),
+
+
+    getEnrollmentClasses: builder.query<
+      {
+        data: EnrollmentClass[];
+
+        total: number;
+      },
+      void
+    >({
+      query: () => ({
+        url: "/student-enrollment/classes",
+
+        method: "GET",
+      }),
+
+      providesTags: ["StudentEnrollment"],
+    }),
+
     // ===================================
-    // DELETE ENROLLMENT
-    // DELETE /student-enrollment/:id
+    // PROMOTE STUDENT
+    // ===================================
+
+    promoteStudent: builder.mutation<
+      {
+        message: string;
+
+        data: Enrollment;
+      },
+      {
+        id: string;
+
+        body: PromotionRequest;
+      }
+    >({
+      query: ({ id, body }) => ({
+        url: `/student-enrollment/${id}/promote`,
+
+        method: "PUT",
+
+        body,
+      }),
+
+      invalidatesTags: ["StudentEnrollment"],
+    }),
+
+    // ===================================
+    // TRANSFER STUDENT
+    // ===================================
+
+    transferStudent: builder.mutation<
+      {
+        message: string;
+      },
+      {
+        id: string;
+
+        body: TransferRequest;
+      }
+    >({
+      query: ({ id, body }) => ({
+        url: `/student-enrollment/${id}/transfer`,
+
+        method: "PUT",
+
+        body,
+      }),
+
+      invalidatesTags: ["StudentEnrollment"],
+    }),
+
+    // ===================================
+    // WITHDRAW STUDENT
+    // ===================================
+
+    withdrawStudent: builder.mutation<
+      {
+        message: string;
+      },
+      string
+    >({
+      query: (id) => ({
+        url: `/student-enrollment/${id}/withdraw`,
+
+        method: "PUT",
+      }),
+
+      invalidatesTags: ["StudentEnrollment"],
+    }),
+
+    // ===================================
+    // READMIT STUDENT
+    // ===================================
+
+    readmitStudent: builder.mutation<
+      {
+        message: string;
+
+        data: Enrollment;
+      },
+      {
+        id: string;
+
+        body: ReadmissionRequest;
+      }
+    >({
+      query: ({ id, body }) => ({
+        url: `/student-enrollment/${id}/readmit`,
+
+        method: "PUT",
+
+        body,
+      }),
+
+      invalidatesTags: ["StudentEnrollment"],
+    }),
+
+    // ===================================
+    // DELETE
     // ===================================
 
     deleteEnrollment: builder.mutation<
@@ -187,11 +444,24 @@ export const studentEnrollmentApi = api.injectEndpoints({
 // ===================================
 
 export const {
+  useGetEligibleStudentsQuery,
+
   useGetEnrollmentsQuery,
 
   useGetEnrollmentByIdQuery,
 
   useCreateEnrollmentMutation,
 
-  useDeleteEnrollmentMutation, 
+  usePromoteStudentMutation,
+
+  useTransferStudentMutation,
+
+  useWithdrawStudentMutation,
+
+  useReadmitStudentMutation,
+
+  useUpdateEnrollmentStatusMutation,
+
+  useDeleteEnrollmentMutation,
+  useGetEnrollmentClassesQuery,
 } = studentEnrollmentApi;

@@ -11,38 +11,68 @@ export type RegistrationStatus =
   | "ACTIVE"
   | "INACTIVE";
 
+export type EnrollmentStatus = "ACTIVE" | "INACTIVE" | "COMPLETED";
+
+export type EnrollmentType = "NEW_STUDENT" | "CONTINUING" | "TRANSFER";
+
 // =================================
-// DROPDOWN TYPES
+// DROPDOWNS
 // =================================
 
 export interface RegistrationSchool {
   id: string;
+
   name: string;
 }
 
 export interface RegistrationGrade {
   id: string;
+
   name: string;
+
   level: number;
 }
 
 export interface RegistrationClass {
   id: string;
+
   name: string;
 
   gradeLevel?: {
     id: string;
+
     name: string;
   };
 }
 
 export interface RegistrationAcademicPeriod {
   id: string;
+
   academicYear: string;
+
   semester: string;
+
   startDate: string;
+
   endDate: string;
+
   isActive?: boolean;
+}
+
+// =================================
+// ACCOUNT
+// =================================
+
+export interface StudentAccount {
+  id: string;
+
+  firstName: string;
+
+  lastName: string;
+
+  email: string;
+
+  photo?: string;
 }
 
 // =================================
@@ -51,92 +81,112 @@ export interface RegistrationAcademicPeriod {
 
 export interface Student {
   id: string;
+
   studentCode: string;
 
   firstName: string;
+
   lastName: string;
 
   gender?: string;
+
   dateOfBirth?: string;
 
   registrationStatus: RegistrationStatus;
 
   schoolId: string;
 
-  account?: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    photo?: string;
-  };
+  account?: StudentAccount;
 
   school?: {
     id: string;
+
     name: string;
   };
 
   parent?: {
     id: string;
+
     phone?: string;
 
-    account?: {
-      id: string;
-      firstName: string;
-      lastName: string;
-      email: string;
-    };
+    account?: StudentAccount;
   };
 
-  registrations?: {
-    id: string;
-    status: string;
+  registrations?: StudentRegistrationHistory[];
 
-    class?: {
-      id: string;
-      name: string;
-
-      gradeLevel?: {
-        id: string;
-        name: string;
-      };
-    };
-
-    academicPeriod?: {
-      id: string;
-      academicYear: string;
-      semester: string;
-    };
-  }[];
-
-  enrollments?: {
-    id: string;
-    enrollmentType: string;
-    status: string;
-
-    class?: {
-      id: string;
-      name: string;
-    };
-
-    academicPeriod?: {
-      id: string;
-      academicYear: string;
-      semester: string;
-    };
-  }[];
+  enrollments?: StudentEnrollment[];
 
   approvedBy?: {
     id: string;
+
     firstName: string;
+
     lastName: string;
+
     email: string;
   };
 
   approvedAt?: string;
 
   createdAt: string;
+
   updatedAt: string;
+}
+
+// =================================
+// REGISTRATION HISTORY
+// =================================
+
+export interface StudentRegistrationHistory {
+  id: string;
+
+  status: RegistrationStatus;
+
+  class?: {
+    id: string;
+
+    name: string;
+
+    gradeLevel?: {
+      id: string;
+
+      name: string;
+    };
+  };
+
+  academicPeriod?: {
+    id: string;
+
+    academicYear: string;
+
+    semester: string;
+  };
+}
+
+// =================================
+// ENROLLMENT
+// =================================
+
+export interface StudentEnrollment {
+  id: string;
+
+  enrollmentType: EnrollmentType;
+
+  status: EnrollmentStatus;
+
+  class?: {
+    id: string;
+
+    name: string;
+  };
+
+  academicPeriod?: {
+    id: string;
+
+    academicYear: string;
+
+    semester: string;
+  };
 }
 
 // =================================
@@ -146,7 +196,7 @@ export interface Student {
 export interface StudentRegistration {
   id: string;
 
-  status: string;
+  status: RegistrationStatus;
 
   approvedAt?: string;
 
@@ -162,25 +212,33 @@ export interface StudentRegistration {
 
   school: {
     id: string;
+
     name: string;
   };
 
   class: {
     id: string;
+
     name: string;
 
     gradeLevel?: {
       id: string;
+
       name: string;
+
       level?: number;
     };
   };
 
   academicPeriod: {
     id: string;
+
     academicYear: string;
+
     semester: string;
+
     startDate?: string;
+
     endDate?: string;
   };
 }
@@ -191,25 +249,32 @@ export interface StudentRegistration {
 
 export interface CreateStudentRequest {
   firstName: string;
+
   lastName: string;
 
   gender?: string;
+
   dateOfBirth?: string;
 
   studentEmail?: string;
 
   schoolId: string;
+
   classId: string;
+
   academicPeriodId: string;
 
   parentFirstName?: string;
+
   parentLastName?: string;
+
   parentEmail?: string;
+
   parentPhone?: string;
 }
 
 // =================================
-// RESPONSE
+// RESPONSES
 // =================================
 
 export interface RegistrationResponse {
@@ -217,8 +282,21 @@ export interface RegistrationResponse {
 
   data: {
     student: Student;
+
     registration: StudentRegistration;
   };
+}
+
+export interface StudentListResponse {
+  data: Student[];
+
+  total: number;
+}
+
+export interface RejectResponse {
+  message: string;
+
+  student: Student;
 }
 
 // =================================
@@ -231,9 +309,19 @@ export const studentRegistrationApi = api.injectEndpoints({
     // ACTIVE WINDOW
     // =================================
 
-    getActiveRegistrationWindow: builder.query<any, void>({
+    getActiveRegistrationWindow: builder.query<
+      {
+        open: boolean;
+
+        message?: string;
+
+        window?: any;
+      },
+      void
+    >({
       query: () => ({
         url: "/student-registration/windows/active",
+
         method: "GET",
       }),
     }),
@@ -245,6 +333,7 @@ export const studentRegistrationApi = api.injectEndpoints({
     getRegistrationSchools: builder.query<RegistrationSchool[], void>({
       query: () => ({
         url: "/student-registration/schools",
+
         method: "GET",
       }),
     }),
@@ -252,6 +341,7 @@ export const studentRegistrationApi = api.injectEndpoints({
     getSchoolGrades: builder.query<RegistrationGrade[], string>({
       query: (schoolId) => ({
         url: `/student-registration/schools/${schoolId}/grades`,
+
         method: "GET",
       }),
     }),
@@ -259,6 +349,7 @@ export const studentRegistrationApi = api.injectEndpoints({
     getGradeClasses: builder.query<RegistrationClass[], string>({
       query: (gradeId) => ({
         url: `/student-registration/grades/${gradeId}/classes`,
+
         method: "GET",
       }),
     }),
@@ -269,6 +360,7 @@ export const studentRegistrationApi = api.injectEndpoints({
     >({
       query: () => ({
         url: "/student-registration/academic-periods",
+
         method: "GET",
       }),
     }),
@@ -283,7 +375,9 @@ export const studentRegistrationApi = api.injectEndpoints({
     >({
       query: (body) => ({
         url: "/student-registration/register",
+
         method: "POST",
+
         body,
       }),
 
@@ -291,41 +385,13 @@ export const studentRegistrationApi = api.injectEndpoints({
     }),
 
     // =================================
-    // STUDENTS
+    // ALL STUDENTS ADMIN
     // =================================
 
-    // =================================
-// ALL REGISTERED STUDENTS (ADMIN)
-// =================================
-
-getAllRegisteredStudents: builder.query<
-  {
-    data: Student[];
-    total: number;
-  },
-  void
->({
-  query: () => ({
-    url: "/student-registration/students",
-    method: "GET",
-  }),
-
-  providesTags: ["StudentRegistration"],
-}),
-
-        // =================================
-    // MY REGISTERED STUDENTS (REGISTRAR)
-    // =================================
-
-    getMyRegisteredStudents: builder.query<
-      {
-        data: Student[];
-        total: number;
-      },
-      void
-    >({
+    getAllRegisteredStudents: builder.query<StudentListResponse, void>({
       query: () => ({
-        url: "/student-registration/my-students",
+        url: "/student-registration/students",
+
         method: "GET",
       }),
 
@@ -333,18 +399,27 @@ getAllRegisteredStudents: builder.query<
     }),
 
     // =================================
-    // PENDING
+    // REGISTRAR STUDENTS
     // =================================
 
-    getPendingStudents: builder.query<
-      {
-        data: Student[];
-        total: number;
-      },
-      void
-    >({
+    getMyRegisteredStudents: builder.query<StudentListResponse, void>({
+      query: () => ({
+        url: "/student-registration/my-students",
+
+        method: "GET",
+      }),
+
+      providesTags: ["StudentRegistration"],
+    }),
+
+    // =================================
+    // PENDING APPROVALS
+    // =================================
+
+    getPendingStudents: builder.query<StudentListResponse, void>({
       query: () => ({
         url: "/student-registration/pending",
+
         method: "GET",
       }),
 
@@ -355,23 +430,38 @@ getAllRegisteredStudents: builder.query<
     // SINGLE REGISTRATION
     // =================================
 
-    getRegistrationById: builder.query<StudentRegistration, string>({
+    getRegistrationById: builder.query<
+      {
+        data: StudentRegistration;
+      },
+      string
+    >({
       query: (id) => ({
         url: `/student-registration/${id}`,
+
         method: "GET",
       }),
 
       providesTags: ["StudentRegistration"],
     }),
 
-    
     // =================================
     // APPROVE
     // =================================
 
-    approveStudent: builder.mutation<any, { id: string }>({
+    approveStudent: builder.mutation<
+      {
+        message: string;
+
+        data: {
+          updatedStudent: Student;
+        };
+      },
+      { id: string }
+    >({
       query: ({ id }) => ({
         url: `/student-registration/${id}/approve`,
+
         method: "PUT",
       }),
 
@@ -383,15 +473,18 @@ getAllRegisteredStudents: builder.query<
     // =================================
 
     rejectStudent: builder.mutation<
-      any,
+      RejectResponse,
       {
         id: string;
+
         reason?: string;
       }
     >({
       query: ({ id, reason }) => ({
         url: `/student-registration/${id}/reject`,
+
         method: "PUT",
+
         body: {
           reason,
         },
@@ -403,7 +496,7 @@ getAllRegisteredStudents: builder.query<
 
   overrideExisting: false,
 });
- 
+
 // =================================
 // HOOKS
 // =================================
@@ -412,25 +505,24 @@ export const {
   useGetActiveRegistrationWindowQuery,
 
   useGetRegistrationSchoolsQuery,
+
   useGetSchoolGradesQuery,
+
   useGetGradeClassesQuery,
+
   useGetRegistrationAcademicPeriodsQuery,
 
   useRegisterStudentMutation,
 
-
-  // ADMIN
   useGetAllRegisteredStudentsQuery,
 
-
-  // REGISTRAR
   useGetMyRegisteredStudentsQuery,
 
-
   useGetPendingStudentsQuery,
+
   useGetRegistrationByIdQuery,
 
   useApproveStudentMutation,
-  useRejectStudentMutation,
 
+  useRejectStudentMutation,
 } = studentRegistrationApi;

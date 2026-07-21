@@ -2,180 +2,196 @@
 
 import { useState } from "react";
 
-import { useCreateEnrollmentMutation } from "@/app/state/module/studentEnrollment/studentEnrollmentApi";
-
-import EnrollmentTypeSelector from "./components/EnrollmentTypeSelector";
-import StudentInformationFields from "./components/StudentInformationFields";
-import ParentInformationFields from "./components/ParentInformationFields";
 import AcademicSelectionFields from "./components/AcademicSelectionFields";
+
+import {
+  useCreateEnrollmentMutation,
+  Student,
+  EnrollmentClass,
+  EnrollmentType,
+} from "@/app/state/module/studentEnrollment/studentEnrollmentApi";
+
+import {
+  RegistrationAcademicPeriod,
+} from "@/app/state/module/studentRegistration/studentRegistrationApi";
 
 interface Props {
   onSuccess: () => void;
+
+  students: Student[];
+
+  academicPeriods: RegistrationAcademicPeriod[];
+
+  classes: EnrollmentClass[];
 }
 
-const StudentEnrollmentForm = ({ onSuccess }: Props) => {
-  const [createEnrollment] = useCreateEnrollmentMutation();
+const StudentEnrollmentForm = ({
+  onSuccess,
+  students,
+  academicPeriods,
+  classes,
+}: Props) => {
+  const [createEnrollment, { isLoading }] =
+    useCreateEnrollmentMutation();
 
-  const [form, setForm] = useState<any>({
-    enrollmentType: "NEW_STUDENT",
-
+  const [form, setForm] = useState<{
+    studentId: string;
+    schoolId: string;
+    academicPeriodId: string;
+    classId: string;
+    enrollmentType: EnrollmentType;
+  }>({
     studentId: "",
-
-    firstName: "",
-
-    lastName: "",
-
-    gender: "",
-
-    dateOfBirth: "",
-
-    parentName: "",
-
-    parentPhone: "",
-
     schoolId: "",
-
+    academicPeriodId: "",
     classId: "",
-
-    academicYear: "2026",
-
-    semester: "SEMESTER_1",
+    enrollmentType: "NEW_STUDENT",
   });
 
+  const updateField = (
+    key: keyof typeof form,
+    value: string
+  ) => {
+    setForm((prev) => {
+      const updated = {
+        ...prev,
+        [key]: value,
+      };
 
-  const update = (data:any)=>{
-    setForm((prev:any)=>({
-      ...prev,
-      ...data
-    }));
+      // Automatically fill schoolId from selected student
+      if (key === "studentId") {
+        const student = students.find((s) => s.id === value);
+
+        updated.schoolId = student?.schoolId ?? "";
+      }
+
+      return updated;
+    });
   };
 
-
-  const submit = async(e:any)=>{
+  const handleSubmit = async (
+    e: React.FormEvent
+  ) => {
     e.preventDefault();
 
-    try{
+    if (
+      !form.studentId ||
+      !form.schoolId ||
+      !form.classId ||
+      !form.academicPeriodId
+    ) {
+      alert("Please complete all required fields.");
+      return;
+    }
 
+    try {
       await createEnrollment(form).unwrap();
 
+      alert("Enrollment created successfully.");
+
       onSuccess();
-
-    }catch(error:any){
-
-      console.error(
-        "Enrollment Error:",
-        error
-      );
+    } catch (error: any) {
+      console.error(error);
 
       alert(
-        error?.data?.message ||
-        "Enrollment failed"
+        error?.data?.message ??
+          "Failed to create enrollment."
       );
-
     }
   };
 
-
   return (
-
     <form
-      onSubmit={submit}
-      className="
-      max-w-3xl
-      mx-auto
-      bg-white
-      p-6
-      rounded-xl
-      shadow
-      space-y-6
-      "
+      onSubmit={handleSubmit}
+      className="space-y-6"
     >
+      {/* Student */}
+      <div>
+        <label className="block text-sm font-medium mb-2">
+          Student
+        </label>
 
-      <h1
-      className="
-      text-xl
-      font-bold
-      "
-      >
-        Student Enrollment
-      </h1>
-
-
-      <EnrollmentTypeSelector
-        value={form.enrollmentType}
-        onChange={(value)=>{
-
-          update({
-            enrollmentType:value
-          });
-
-        }}
-      />
-
-
-      {
-        form.enrollmentType !== "NEW_STUDENT" && (
-
-          <input
-          className="input"
-          placeholder="Existing Student ID"
+        <select
           value={form.studentId}
-          onChange={(e)=>
-            update({
-              studentId:e.target.value
-            })
+          onChange={(e) =>
+            updateField("studentId", e.target.value)
           }
-          />
+          className="w-full border rounded-xl p-3"
+        >
+          <option value="">
+            Select Student
+          </option>
 
-        )
-      }
-
-
-      {
-        form.enrollmentType === "NEW_STUDENT" && (
-
-          <StudentInformationFields
-            form={form}
-            update={update}
-          />
-
-        )
-      }
-
-
-
-      <ParentInformationFields
-        form={form}
-        update={update}
-      />
-
-
+          {students.map((student) => (
+            <option
+              key={student.id}
+              value={student.id}
+            >
+              {student.studentCode} — {student.firstName}{" "}
+              {student.lastName}
+            </option>
+          ))}
+        </select>
+      </div>
 
       <AcademicSelectionFields
         form={form}
-        update={update}
+        updateField={(key, value) =>
+          updateField(key as keyof typeof form, value)
+        }
+        academicPeriods={academicPeriods}
+        classes={classes}
       />
 
+      {/* Enrollment Type */}
+      <div>
+        <label className="block text-sm font-medium mb-2">
+          Enrollment Type
+        </label>
 
+        <select
+          value={form.enrollmentType}
+          onChange={(e) =>
+            updateField(
+              "enrollmentType",
+              e.target.value as EnrollmentType
+            )
+          }
+          className="w-full border rounded-xl p-3"
+        >
+          <option value="NEW_STUDENT">
+            New Student
+          </option>
+
+          <option value="TRANSFER">
+            Transfer
+          </option>
+
+          <option value="PROMOTION">
+            Promotion
+          </option>
+
+          <option value="REPEAT">
+            Repeat
+          </option>
+
+          <option value="READMISSION">
+            Readmission
+          </option>
+        </select>
+      </div>
 
       <button
-      type="submit"
-      className="
-      bg-blue-600
-      text-white
-      px-5
-      py-3
-      rounded-lg
-      "
+        type="submit"
+        disabled={isLoading}
+        className="w-full bg-blue-600 text-white rounded-xl py-3 font-semibold hover:bg-blue-700 disabled:opacity-50"
       >
-        Submit Enrollment
+        {isLoading
+          ? "Creating Enrollment..."
+          : "Create Enrollment"}
       </button>
-
-
     </form>
-
   );
 };
-
 
 export default StudentEnrollmentForm;

@@ -1,124 +1,196 @@
 "use client";
 
-import { useGetSchoolsQuery } from "@/app/state/module/schools/schoolApi";
-
 interface Props {
-  form: any; 
-  update: (data: any) => void;
+  form: any;
+
+  updateField: (
+    key: string,
+    value: string
+  ) => void;
+
+  academicPeriods?: any[];
+
+  classes?: any[];
 }
 
-export default function AcademicSelectionFields({
-  form,
-  update,
-}: Props) {
 
-  const {
-    data: schools = [],
-    isLoading,
-  } = useGetSchoolsQuery();
+const AcademicSelectionFields = ({
+  form,
+  updateField,
+  academicPeriods = [],
+  classes = [],
+
+}: Props) => {
 
 
   return (
-    <div className="space-y-4">
 
-      <h2 className="font-semibold">
+    <div className="mt-6">
+
+
+      <h3 className="
+                font-semibold
+                text-gray-700
+                mb-3
+            ">
         Academic Information
-      </h2>
+      </h3>
 
 
-      {/* SCHOOL SELECT */}
 
-      <select
-        className="input"
-        value={form.schoolId}
-        onChange={(e) =>
-          update({
-            schoolId: e.target.value,
-          })
-        }
-      >
-
-        <option value="">
-          Select School
-        </option>
+      <div className="
+                grid
+                md:grid-cols-2
+                gap-4
+            ">
 
 
-        {isLoading && (
-          <option>
-            Loading schools...
-          </option>
-        )}
+        {/* Academic Period */}
+
+        <div>
+
+          <label className="
+                        text-sm
+                        text-gray-600
+                    ">
+            Academic Period
+          </label>
 
 
-        {schools.map((school) => (
-          <option
-            key={school.id}
-            value={school.id}
+          <select
+
+            value={form.academicPeriodId}
+
+            onChange={(e) =>
+              updateField(
+                "academicPeriodId",
+                e.target.value
+              )
+            }
+
+            className="
+                            w-full
+                            border
+                            rounded-xl
+                            p-3
+                            mt-1
+                        "
+
           >
-            {school.name}
-          </option>
-        ))}
+
+            <option value="">
+              Select Academic Period
+            </option>
 
 
-      </select>
+            {
+              academicPeriods.map(
+                (period) => (
+
+                  <option
+                    key={period.id}
+                    value={period.id}
+                  >
+
+                    {period.academicYear}
+                    {" - "}
+                    {period.semester}
+
+                  </option>
+
+                )
+              )
+            }
 
 
-
-      {/* CLASS ID */}
-
-      <input
-        className="input"
-        placeholder="Class ID"
-        value={form.classId}
-        onChange={(e) =>
-          update({
-            classId: e.target.value,
-          })
-        }
-      />
+          </select>
 
 
-
-      {/* YEAR */}
-
-      <input
-        className="input"
-        placeholder="Academic Year"
-        value={form.academicYear}
-        onChange={(e) =>
-          update({
-            academicYear: e.target.value,
-          })
-        }
-      />
+        </div>
 
 
 
-      {/* SEMESTER */}
-
-      <select
-        className="input"
-        value={form.semester}
-        onChange={(e) =>
-          update({
-            semester: e.target.value,
-          })
-        }
-      >
-
-        <option value="SEMESTER_1">
-          Semester 1
-        </option>
 
 
-        <option value="SEMESTER_2">
-          Semester 2
-        </option>
+        {/* Class */}
+
+        <div>
 
 
-      </select>
+          <label className="
+                        text-sm
+                        text-gray-600
+                    ">
+            Class
+          </label>
+
+
+          <select
+
+            value={form.classId}
+
+            onChange={(e) =>
+              updateField(
+                "classId",
+                e.target.value
+              )
+            }
+
+            className="
+                            w-full
+                            border
+                            rounded-xl
+                            p-3
+                            mt-1
+                        "
+
+          >
+
+            <option value="">
+              Select Class
+            </option>
+
+
+            {
+              classes.map(
+                (item) => (
+
+                  <option
+                    key={item.id}
+                    value={item.id}
+                  >
+
+                    {
+                      item.gradeLevel?.name
+                      ??
+                      ""
+                    }
+
+                    {" - "}
+
+                    {item.name}
+
+                  </option>
+
+                )
+              )
+            }
+
+
+          </select>
+
+
+        </div>
+
+
+      </div>
 
 
     </div>
+
   );
-}
+
+};
+
+
+export default AcademicSelectionFields;
